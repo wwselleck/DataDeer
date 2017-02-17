@@ -1,0 +1,14 @@
+.DS_STORE
+npm-debug.log
+node_modules
+*.*.swp
+*.*.swo
+.sw*
+creds
+example_site/creds
+testsite
+*.swp
+*.swo
+drivecms.config.js
+/public
+*.log

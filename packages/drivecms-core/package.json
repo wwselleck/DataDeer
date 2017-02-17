@@ -1,0 +1,16 @@
+{
+  "name": "drivecms-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "DriveCMS.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.5",
+    "google-auth-library": "^0.9.8",
+    "googleapis": "^8.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

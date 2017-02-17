@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>My Site! :D</title>
+  </head>
+  <body>
+    <img src="{{images.[winnie.jpg]}}">
+    {{#with data}}
+    Welcome to My Site! Let me introduce myself...
+    My name is {{info.name.value}}. I go to {{info.school.value}} and am majoring in {{info.major.value}}. Here are some of the jobs I've had...
+    <table>
+      <thead>
+        <tr>
+          <td>Company</td>
+          <td>Position</td>
+          <td>Location</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{jobs.job1.name}}</td>
+          <td>{{jobs.job1.position}}</td>
+          <td>{{jobs.job1.location}}</td>
+        </tr>
+         <tr>
+          <td>{{jobs.job2.name}}</td>
+          <td>{{jobs.job2.position}}</td>
+          <td>{{jobs.job2.location}}</td>
+        </tr>
+         <tr>
+          <td>{{jobs.job3.name}}</td>
+          <td>{{jobs.job3.position}}</td>
+          <td>{{jobs.job3.location}}</td>
+        </tr>
+      </tbody>
+    </table>
+    {{/with}}
+  </body>
+</html>
