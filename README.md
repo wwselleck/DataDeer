@@ -1,5 +1,9 @@
-# DriveCMS
+# DataDeer
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
+[![deer](https://s-media-cache-ak0.pinimg.com/736x/3e/75/62/3e7562e3ef592b24e741ae61b5442cdc.jpg)]
+
+Unofficial temporary mascot of DataDeer.
 
 Use Google Drive as a simple CMS of your website.
 
@@ -70,7 +74,7 @@ There's a lot going on here so lets' break it down.
 
 `service_auth`: This specifies the configuration for authenticating with the Service Account strategy. You could put the contents of the `MyProject...def.json` file in here directly, but it's better to instead give a path to the JSON file instead. That way you can include the `drivecms.config.js` file in your version control, while keeping the credentials out.
 
-`basedir`: This is the folder that contains your data in Google Drive. It must have a unique name for DriveCMS to work correctly. 
+`basedir`: This is the folder that contains your data in Google Drive. It must have a unique name for DriveCMS to work correctly.
 
 `data_tables`: This is a list of the files inside of the `base_dir` that contain data that you wish to load.
 
@@ -107,7 +111,7 @@ When DriveCMS loads in your data from the data sheet, it exposes it to your HTML
       }
     }
   }
-  
+
 }
 ```
 
@@ -195,7 +199,7 @@ Let's add some more stuff to our site.
   </body>
 </html>
 ```
-Here you can see I used a second sheet named `jobs`, with a different data structure than the `info` sheet, to hold the data about my previous jobs. I've also used The handlerbars `with` helper to neaten it up. 
+Here you can see I used a second sheet named `jobs`, with a different data structure than the `info` sheet, to hold the data about my previous jobs. I've also used The handlerbars `with` helper to neaten it up.
 
 Great, now we're using two different sheets to feed data into our page. The last thing I'll show in this tutorial is how you can use DriveCMS to easily insert images from your Google Drive into your webpage. Go ahead and add any image you want into your `ExampleSite` folder on Drive, and make sure it's set to "public". Then take note of that image's name, and insert it into a new `images` field in your `drivecms.config.js` file.
 
@@ -226,11 +230,11 @@ DriveCMS will find all of the images you've specified in this list and add the U
     <img src="{{images.[winnie.jpg]}}">
     Welcome to My Site! Let me introduce myself...
     My name is {{info.name}}. I go to {{info.school}} and am majoring in {{info.major}}. Here are some of the jobs I've had...
-    
+
     ...
   </body>
 </html>
 ```
-You'll want to take note of that weird syntax. This is the way Handlebars allows us to access field names that contain a `.`. 
+You'll want to take note of that weird syntax. This is the way Handlebars allows us to access field names that contain a `.`.
 
 If you restart the server, you should be able to see your picture!
