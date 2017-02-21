@@ -1,7 +1,7 @@
 # DataDeer
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-[![deer](https://s-media-cache-ak0.pinimg.com/736x/3e/75/62/3e7562e3ef592b24e741ae61b5442cdc.jpg)]
+![deer](https://s-media-cache-ak0.pinimg.com/736x/3e/75/62/3e7562e3ef592b24e741ae61b5442cdc.jpg)
 
 Unofficial temporary mascot of DataDeer.
 
