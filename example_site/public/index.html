@@ -4,8 +4,8 @@
     <title>My Site! :D</title>
   </head>
   <body>
-    <img src="{{images.[winnie.jpg]}}">
-    {{#with data}}
+    <img src="{{data.images.[winnie.jpg]}}">
+    {{#with data.data}}
     Welcome to My Site! Let me introduce myself...
     My name is {{info.name.value}}. I go to {{info.school.value}} and am majoring in {{info.major.value}}. Here are some of the jobs I've had...
     <table>

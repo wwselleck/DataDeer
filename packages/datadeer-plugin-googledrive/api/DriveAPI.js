@@ -9,11 +9,9 @@ function searchFiles (q, {auth}) {
       if (err) {
         return reject(err)
       } else {
-        resolve(res.files)
+        return resolve(res.files)
       }
     })
-  }).catch(err => {
-    log.error(err)
   })
 }
 

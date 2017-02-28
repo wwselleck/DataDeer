@@ -1,13 +1,13 @@
 const path = require('path')
 const process = require('process')
-const spawn = require('child_process').spawn
-const CLI_PATH = path.resolve(__dirname, '../packages/drivecms-cli/index.js')
-const NODE_MODULES_PATH = path.resolve(__dirname, '../node_modules')
+const { spawn, spawnSync } = require('child_process')
+const CLI_PATH = path.resolve(__dirname, '../packages/datadeer-cli/index.js')
 
-const NODEMON = path.resolve(NODE_MODULES_PATH, 'nodemon', 'bin', 'nodemon.js')
+const NPM_BIN = spawnSync('npm', ['bin']).stdout.toString().trim()
+const NODEMON = path.resolve(NPM_BIN, 'nodemon')
 
 process.chdir('./example_site')
-child = spawn('node', [CLI_PATH])
+const child = spawn(NODEMON, [CLI_PATH])
 
 child.stdout.on('data', data => {
   console.log(data.toString())

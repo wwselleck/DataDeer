@@ -1,9 +1,12 @@
 const start = (fetch, cb, interval) => {
-  return setInterval(() => {
+  const f = () => {
     fetch().then(data => {
       cb(data)
     })
-  }, interval)
+  }
+  // Run it once without delay
+  f()
+  return setInterval(f, interval)
 }
 
 const stop = (poll) => {

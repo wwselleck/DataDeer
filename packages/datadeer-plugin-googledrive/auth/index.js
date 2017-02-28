@@ -12,7 +12,7 @@ function authenticate (opts) {
   if (!authModes[opts.mode]) {
     log.error({opts}, 'Attemping to authenticate with an invalid mode')
   }
-  return authModes[opts.mode](opts)
+  return authModes[opts.type](opts)
 }
 
 module.exports = { authenticate }

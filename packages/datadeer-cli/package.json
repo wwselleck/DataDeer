@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "bunyan": "^1.8.5",
-    "drivecms-server": "1.0.0"
+    "datadeer-cms": "^1.0.0",
+    "datadeer-plugin-googledrive": "^1.0.0"
   }
 }

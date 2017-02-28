@@ -1,15 +1,17 @@
 {
-  "name": "drivecms-server",
+  "name": "datadeer-cms",
   "version": "1.0.0",
   "description": "",
-  "main": "DriveCMSServer.js",
+  "main": "index.js",
   "scripts": {
     "dev:example-site": "node scripts/run-example-site.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "bunyan": "^1.8.5",
-    "drivecms-core": "^1.0.0",
+    "datadeer-core": "^1.0.0",
+    "datadeer-logger": "^1.0.0",
+    "datadeer-plugin-googledrive": "^1.0.0",
     "exphbs": "^1.1.0",
     "express": "^4.14.1",
     "express-handlebars": "^3.0.0",

@@ -1,5 +1,5 @@
 {
-  "name": "drive-cms",
+  "name": "datadeer",
   "version": "1.0.0",
   "description": "Use Google Drive as a simple CMS of your website.",
   "main": "index.js",

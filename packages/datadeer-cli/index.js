@@ -1,12 +1,13 @@
-console.log("1")
 let path = require('path')
-console.log("2")
 let log = require('./lib/logger.js')
-console.log("3")
-let DriveCMSServer = require('drivecms-server')
+let DataDeerCMS = require('datadeer-cms')
+
+function loadPlugins (pluginConfigs) {
+
+}
 
 function main () {
-  const configPath = path.resolve('./drivecms.config.js')
+  const configPath = path.resolve('./datadeercms.config.js')
 
   log.info({configPath}, 'Attempting to read configuration file')
 
@@ -20,8 +21,10 @@ function main () {
 
   log.info({configPath, config}, 'Configuration read successfully')
 
-  log.info('Starting DriveCMSServer')
-  let server = new DriveCMSServer(config)
+  const plugins = loadPlugins(config.plugins)
+
+  log.info('Starting DataDeerCMS...')
+  let server = new DataDeerCMS(config)
   server.start().catch(err => console.log(err))
 }
 

@@ -8,13 +8,12 @@ const baseLogger = bunyan.createLogger({
 })
 
 const CHILD_DEFAULTS = {
-  level: 'info',
-  stream: process.stdout,
+  level: 'debug',
   module: module.parent.filename
 }
 
 function createLogger (opts) {
-  baseLogger.child(Object.assign({}, CHILD_DEFAULTS, opts))
+  return baseLogger.child(Object.assign({}, CHILD_DEFAULTS, opts))
 }
 
 module.exports = {
