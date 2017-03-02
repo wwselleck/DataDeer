@@ -6,61 +6,78 @@ const { makeError } = require('./lib/errors')
  * data from them.
  */
 class DataDeerCore {
-  constructor () {
-    this.plugins = []
+
+  /**
+   * Create a DataDeer instance
+   * @param {Config} config - DataDeer configuration
+   * @param {SourceConfig[]} config.sources -  Data sources to be used at initialization
+   * @param {DataDeerPlugin} config.sources.plugin - Plugin to use
+   * @param {object} config.sources.options - Options to use to create plugin instance
+   * @param {string} config.sources.id - ID to use to identify data
+   */
+  constructor (config) {
+    this.config = config
+    this.sources = []
+
+    const { sources } = config
+    sources.forEach(source => {
+      this.use(source)
+    })
   }
 
   /**
    * Check if a pluginConfig is compatible with DataDeer
-   * @param {Object} pluginConfig - Plugin configuration
-   * @param {*} pluginConfig.plugin - Should be a function, but that's what's being checked
-   * @param {string} pluginConfig.id - ID to identify plugin output in data object
+   * @param {Object} sourceConfig - Plugin configuration
+   * @param {*} sourceConfig.plugin - Should be a function, but that's what's being checked
+   * @param {string} sourceConfig.id - ID to identify plugin output in data object
    */
-  _verifyPluginCompat (pluginConfig) {
-    log.debug(pluginConfig, 'Verifying plugin compatability')
+  _verifysourceCompat (sourceConfig) {
+    log.debug(sourceConfig, 'Verifying source config compatability')
     const errors = []
-    if (pluginConfig.plugin === undefined) {
-      errors.push(makeError.pluginUndefined())
+    if (sourceConfig.source === undefined) {
+      errors.push(makeError.sourceUndefined())
       return errors
     }
-    if (typeof pluginConfig.plugin !== 'function') {
-      errors.push(makeError.notFunction(pluginConfig.plugin.filename))
+    if (typeof sourceConfig.source !== 'function') {
+      errors.push(makeError.notFunction(sourceConfig.source.filename))
     }
-    if (pluginConfig.id === undefined) {
-      errors.push(makeError.noId(pluginConfig.plugin.filename))
+    if (sourceConfig.id === undefined) {
+      errors.push(makeError.noId(sourceConfig.source.filename))
     }
     return errors
   }
 
   /**
-   * Use a
+   * Use a sourceConfig
    */
-  use (pluginConfig) {
-    log.debug({ pluginConfig }, `Attemping to use plugin`)
-    const errors = this._verifyPluginCompat(pluginConfig)
+  use (sourceConfig) {
+    log.debug({ sourceConfig }, `Attemping to use source`)
+    const errors = this._verifysourceCompat(sourceConfig)
     if (errors.length !== 0) {
-      let errorString = 'Cannot use invalid plugin\n'
+      let errorString = 'Cannot use invalid source\n'
       errors.forEach(e => {
         errorString += `${e.toString()}\n`
       })
       log.warn(new Error(errorString))
     }
 
-    this.plugins.push({
-      plugin: pluginConfig.plugin(pluginConfig),
-      id: pluginConfig.id
+    const { id, plugin, options } = sourceConfig
+
+    this.sources.push({
+      source: plugin(options),
+      id
     })
     return this
   }
 
   fetch () {
     const ret = {}
-    return Promise.all(this.plugins.map(pluginConfig => {
-      const { plugin, id } = pluginConfig
-      return plugin().then(data => {
+    return Promise.all(this.sources.map(sourceConfig => {
+      const { source, id } = sourceConfig
+      return source().then(data => {
         ret[id] = data
       }).catch(err => {
-        log.error({err, plugin}, 'Error while fetching data for plugin')
+        log.error({err, source}, 'Error while fetching data for source')
       })
     })).then(() => {
       return ret

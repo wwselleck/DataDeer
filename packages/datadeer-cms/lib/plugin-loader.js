@@ -1,6 +1,4 @@
 const log = require('./logger')
-const g = require('datadeer-plugin-googledrive')
-console.log(g)
 const PLUGIN_PREFIX = 'datadeer-plugin-'
 
 function _ensurePrefix (prefix, plugin) {

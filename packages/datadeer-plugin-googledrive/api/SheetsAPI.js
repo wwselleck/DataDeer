@@ -70,7 +70,7 @@ function getSpreadsheet (id, {auth}) {
   log.info({id}, 'Getting spreadsheet')
   return new Promise((resolve, reject) => {
     api.spreadsheets.get({
-      auth: auth,
+      auth,
       spreadsheetId: id,
       includeGridData: true
     }, (err, spreadsheet) => {

@@ -1,15 +1,2 @@
-let bunyan = require('bunyan')
-
-module.exports = bunyan.createLogger({
-  name: 'DriveCMS',
-  src: true,
-  level: 'debug',
-  streams: [
-    {
-      stream: process.stdout
-    },
-    {
-      path: './logfile.log'
-    }
-  ]
-})
+const { createLogger } = require('datadeer-logger')
+module.exports = createLogger({})
