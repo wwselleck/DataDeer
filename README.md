@@ -20,7 +20,6 @@ Raft is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monor
 | Package | Description |
 |--------|---------------|
 | [`raft-plugin-googledrive`](/packages/raft-plugin-googledrive) | Fetch data from a Google Drive folder (spreadsheets, image urls, etc) |
-| [`datadeer-logger`](/packages/raft-logger) | Logger for all other packages to import and use for logging |
 
 ### Third Party Plugins
 > This is so trivial no one wants to make plugins for your dumb data fetcher thing
