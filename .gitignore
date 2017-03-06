@@ -9,6 +9,5 @@ example_site/creds
 testsite
 *.swp
 *.swo
-drivecms.config.js
 /public
 *.log

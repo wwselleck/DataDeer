@@ -1,0 +1,16 @@
+{
+  "name": "@wwselleck/example_site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "raft.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon $(npm bin)/raft"
+  },
+  "dependencies": {
+    "@wwselleck/raft-plugin-googledrive": "^1.0.0",
+    "@wwselleck/raft-cli": "^1.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,1862 @@
+[
+  {
+    "__docId__": 0,
+    "kind": "file",
+    "name": "lib/DataPoll.js",
+    "content": "const start = (fetch, cb, interval) => {\n  const f = () => {\n    fetch().then(data => {\n      cb(data)\n    })\n  }\n  // Run it once without delay\n  f()\n  return setInterval(f, interval)\n}\n\nconst stop = (poll) => {\n  clearInterval(poll)\n}\n\nmodule.exports = {start, stop}\n",
+    "static": true,
+    "longname": "lib/DataPoll.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 1,
+    "kind": "function",
+    "name": "start",
+    "memberof": "lib/DataPoll.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/DataPoll.js~start",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/DataPoll.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "fetch",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "cb",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "interval",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 2,
+    "kind": "function",
+    "name": "stop",
+    "memberof": "lib/DataPoll.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/DataPoll.js~stop",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/DataPoll.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "poll",
+        "types": [
+          "*"
+        ]
+      }
+    ]
+  },
+  {
+    "__docId__": 3,
+    "kind": "file",
+    "name": "lib/Raft.js",
+    "content": "let datadeer = require('datadeer-core')\nlet log = require('./lib/logger.js')\nlet { loadPlugin } = require('./lib/plugin-loader.js')\nconst Server = require('./lib/Server')\n\n/**\n * @typedef {Object} RaftConfig\n * @property {PluginConfig[]} [plugins] - List of plugins to apply\n * @property {PluginConfig[]} [dataSources] - Functionally the same as plugins, useful for logically separating data sources from plugins\n */\n\n/**\n * @typedef {Object} PluginConfig\n * @property {function} [plugin] - Plugin to apply\n * @property {stirng} [pluginName] - Name of plugin to load and apply\n * @property {Object} [options] - Options to apply to plugin if loaded by pluginName\n */\n\n/**\n * @class\n * Main raft class\n * @example\n * id\n */\nclass Raft {\n  /**\n   * Create an instance of Raft\n   * @param {RaftConfig} config - Raft configuration\n   */\n  constructor (config) {\n    const { plugins, dataInterval } = config\n    const resolvedPlugins = this._resolvePlugins(plugins)\n    log.debug({resolvedPlugins}, 'resolved')\n    this.pluginConfigs = resolvedPlugins\n\n    const dataFetcher = datadeer()\n    this._applyPlugins(dataFetcher, resolvedPlugins)\n    this.dataFetcher = dataFetcher\n\n    const server = new Server({\n      dataFetcher: dataFetcher.fetch.bind(dataFetcher),\n      dataInterval: 3000\n    })\n    this.server = server\n\n    this.dataInterval = dataInterval\n  }\n\n  /**\n   * Resolve list of plugins. If a plugin is provided as a string, require that module.\n   * @param {PluginConfig[]} pluginConfigs - List of plugins\n   * @returns {PluginConfig[]} Resolved plugins\n   */\n  _resolvePlugins (pluginConfigs) {\n    return pluginConfigs.map(pluginConfig => {\n      log.debug({pluginConfig}, 'Resolving pluginConfig')\n      if (typeof pluginConfig.plugin === 'string') {\n        try {\n          log.debug(`Plugin ${pluginConfig.plugin} provided as string, attemping to load`)\n\n          const loadedPlugin = loadPlugin(pluginConfig.plugin)\n          const _pluginConfig = Object.assign({}, pluginConfig, {plugin: loadedPlugin})\n          log.debug({ _pluginConfig }, 'Plugin loaded successfully')\n          return _pluginConfig\n        } catch (e) {\n          log.error(e)\n          log.error(e.errors)\n        }\n      } else {\n        return pluginConfig\n      }\n    })\n  }\n\n  /**\n   * Apply pluginConfigs to a data fetcher\n   * @param {DataDeerCore} dataFetcher - DataDeerCore to apply plugin to\n   * @param {PluginConfig[]} pluginConfigs - Plugins to apply\n   */\n  _applyPlugins (dataFetcher, pluginConfigs) {\n    pluginConfigs.forEach(pluginConfig => {\n      log.debug({pluginConfig}, 'Attemping to apply plugin')\n      dataFetcher.use(pluginConfig)\n      log.debug({pluginConfig}, 'Plugin applied')\n    })\n  }\n\n  start () {\n    return this.server.start()\n  }\n}\n\nmodule.exports = Raft\n",
+    "static": true,
+    "longname": "lib/Raft.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 4,
+    "kind": "variable",
+    "name": "datadeer",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~datadeer",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Raft.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 5,
+    "kind": "variable",
+    "name": "log",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~log",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Raft.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 2,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 6,
+    "kind": "variable",
+    "name": "loadPlugin",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~loadPlugin",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Raft.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 7,
+    "kind": "variable",
+    "name": "Server",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~Server",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Raft.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 8,
+    "kind": "typedef",
+    "name": "RaftConfig",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~RaftConfig",
+    "access": null,
+    "description": "",
+    "properties": [
+      {
+        "nullable": null,
+        "types": [
+          "PluginConfig[]"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "plugins",
+        "description": "List of plugins to apply"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "PluginConfig[]"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "dataSources",
+        "description": "Functionally the same as plugins, useful for logically separating data sources from plugins"
+      }
+    ],
+    "type": {
+      "types": [
+        "Object"
+      ],
+      "optional": false,
+      "name": "RaftConfig"
+    }
+  },
+  {
+    "__docId__": 9,
+    "kind": "typedef",
+    "name": "PluginConfig",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~PluginConfig",
+    "access": null,
+    "description": "",
+    "properties": [
+      {
+        "nullable": null,
+        "types": [
+          "function"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "plugin",
+        "description": "Plugin to apply"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "stirng"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "pluginName",
+        "description": "Name of plugin to load and apply"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": true,
+        "name": "options",
+        "description": "Options to apply to plugin if loaded by pluginName"
+      }
+    ],
+    "type": {
+      "types": [
+        "Object"
+      ],
+      "optional": false,
+      "name": "PluginConfig"
+    }
+  },
+  {
+    "__docId__": 10,
+    "kind": "class",
+    "name": "Raft",
+    "memberof": "lib/Raft.js",
+    "static": true,
+    "longname": "lib/Raft.js~Raft",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Raft.js",
+    "importStyle": null,
+    "description": "",
+    "examples": [
+      "id"
+    ],
+    "lineNumber": 25,
+    "unknown": [
+      {
+        "tagName": "@class",
+        "tagValue": "Main raft class"
+      }
+    ],
+    "interface": false
+  },
+  {
+    "__docId__": 11,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/Raft.js~Raft",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Raft.js~Raft#constructor",
+    "access": null,
+    "description": "Create an instance of Raft",
+    "lineNumber": 30,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "RaftConfig"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "config",
+        "description": "Raft configuration"
+      }
+    ]
+  },
+  {
+    "__docId__": 12,
+    "kind": "member",
+    "name": "pluginConfigs",
+    "memberof": "lib/Raft.js~Raft",
+    "static": false,
+    "longname": "lib/Raft.js~Raft#pluginConfigs",
+    "access": null,
+    "description": null,
+    "lineNumber": 34,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 13,
+    "kind": "member",
+    "name": "dataFetcher",
+    "memberof": "lib/Raft.js~Raft",
+    "static": false,
+    "longname": "lib/Raft.js~Raft#dataFetcher",
+    "access": null,
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 14,
+    "kind": "member",
+    "name": "server",
+    "memberof": "lib/Raft.js~Raft",
+    "static": false,
+    "longname": "lib/Raft.js~Raft#server",
+    "access": null,
+    "description": null,
+    "lineNumber": 44,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 15,
+    "kind": "member",
+    "name": "dataInterval",
+    "memberof": "lib/Raft.js~Raft",
+    "static": false,
+    "longname": "lib/Raft.js~Raft#dataInterval",
+    "access": null,
+    "description": null,
+    "lineNumber": 46,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 16,
+    "kind": "method",
+    "name": "_resolvePlugins",
+    "memberof": "lib/Raft.js~Raft",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Raft.js~Raft#_resolvePlugins",
+    "access": null,
+    "description": "Resolve list of plugins. If a plugin is provided as a string, require that module.",
+    "lineNumber": 54,
+    "unknown": [
+      {
+        "tagName": "@returns",
+        "tagValue": "{PluginConfig[]} Resolved plugins"
+      }
+    ],
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "PluginConfig[]"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "pluginConfigs",
+        "description": "List of plugins"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "PluginConfig[]"
+      ],
+      "spread": false,
+      "description": "Resolved plugins"
+    }
+  },
+  {
+    "__docId__": 17,
+    "kind": "method",
+    "name": "_applyPlugins",
+    "memberof": "lib/Raft.js~Raft",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Raft.js~Raft#_applyPlugins",
+    "access": null,
+    "description": "Apply pluginConfigs to a data fetcher",
+    "lineNumber": 80,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "DataDeerCore"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dataFetcher",
+        "description": "DataDeerCore to apply plugin to"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "PluginConfig[]"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "pluginConfigs",
+        "description": "Plugins to apply"
+      }
+    ]
+  },
+  {
+    "__docId__": 18,
+    "kind": "method",
+    "name": "start",
+    "memberof": "lib/Raft.js~Raft",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Raft.js~Raft#start",
+    "access": null,
+    "description": null,
+    "lineNumber": 88,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 19,
+    "kind": "file",
+    "name": "lib/Server.js",
+    "content": "let express = require('express')\nlet exphbs = require('express-handlebars')\nlet morgan = require('morgan')\nlet log = require('./logger')\nconst DataPoll = require('./DataPoll')\n\nclass Server {\n  constructor ({dataFetcher, dataInterval}) {\n    console.log(dataFetcher.toString())\n    this.dataFetcher = dataFetcher\n    this.app = this._createApp()\n  }\n\n  _createApp () {\n    const app = express()\n    app.use(morgan('combined'))\n\n    app.engine('html', exphbs({\n      defaultLayout: false,\n      extname: '.html'\n    }))\n\n    app.set('views', './public')\n    app.set('view engine', 'html')\n\n    app.use('/static', express.static('./public'))\n\n    app.get('/*', (req, res) => {\n      console.info(this.data)\n      res.render(req.params['0'] || 'index', this.data)\n    })\n    return app\n  }\n\n  /**\n   * Start polling for data and update\n   */\n  _startPolling () {\n    const dataInterval = this.dataInterval || 4000\n    this.poll = DataPoll.start(this.dataFetcher, data => {\n      this.setData(data)\n    }, dataInterval)\n  }\n\n  setData (data) {\n    log.info(data, 'Setting server data')\n    this.data = data\n  }\n\n  start () {\n    this._startPolling()\n\n    return new Promise((resolve, reject) => {\n      this.app.listen(3000, () => {\n        log.info({port: 3000}, 'Listening on 3000!')\n      })\n    })\n  }\n}\n\nmodule.exports = Server\n",
+    "static": true,
+    "longname": "lib/Server.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 20,
+    "kind": "variable",
+    "name": "express",
+    "memberof": "lib/Server.js",
+    "static": true,
+    "longname": "lib/Server.js~express",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Server.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 21,
+    "kind": "variable",
+    "name": "exphbs",
+    "memberof": "lib/Server.js",
+    "static": true,
+    "longname": "lib/Server.js~exphbs",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Server.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 2,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 22,
+    "kind": "variable",
+    "name": "morgan",
+    "memberof": "lib/Server.js",
+    "static": true,
+    "longname": "lib/Server.js~morgan",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Server.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 23,
+    "kind": "variable",
+    "name": "log",
+    "memberof": "lib/Server.js",
+    "static": true,
+    "longname": "lib/Server.js~log",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Server.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 24,
+    "kind": "variable",
+    "name": "DataPoll",
+    "memberof": "lib/Server.js",
+    "static": true,
+    "longname": "lib/Server.js~DataPoll",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Server.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 25,
+    "kind": "class",
+    "name": "Server",
+    "memberof": "lib/Server.js",
+    "static": true,
+    "longname": "lib/Server.js~Server",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/Server.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "interface": false
+  },
+  {
+    "__docId__": 26,
+    "kind": "constructor",
+    "name": "constructor",
+    "memberof": "lib/Server.js~Server",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Server.js~Server#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "objectPattern",
+        "types": [
+          "{\"dataFetcher\": *, \"dataInterval\": *}"
+        ],
+        "defaultRaw": {
+          "dataFetcher": null,
+          "dataInterval": null
+        },
+        "defaultValue": "{\"dataFetcher\":null,\"dataInterval\":null}"
+      }
+    ]
+  },
+  {
+    "__docId__": 27,
+    "kind": "member",
+    "name": "dataFetcher",
+    "memberof": "lib/Server.js~Server",
+    "static": false,
+    "longname": "lib/Server.js~Server#dataFetcher",
+    "access": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 28,
+    "kind": "member",
+    "name": "app",
+    "memberof": "lib/Server.js~Server",
+    "static": false,
+    "longname": "lib/Server.js~Server#app",
+    "access": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 29,
+    "kind": "method",
+    "name": "_createApp",
+    "memberof": "lib/Server.js~Server",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Server.js~Server#_createApp",
+    "access": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 30,
+    "kind": "method",
+    "name": "_startPolling",
+    "memberof": "lib/Server.js~Server",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Server.js~Server#_startPolling",
+    "access": null,
+    "description": "Start polling for data and update",
+    "lineNumber": 38,
+    "params": []
+  },
+  {
+    "__docId__": 31,
+    "kind": "member",
+    "name": "poll",
+    "memberof": "lib/Server.js~Server",
+    "static": false,
+    "longname": "lib/Server.js~Server#poll",
+    "access": null,
+    "description": null,
+    "lineNumber": 40,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 32,
+    "kind": "method",
+    "name": "setData",
+    "memberof": "lib/Server.js~Server",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Server.js~Server#setData",
+    "access": null,
+    "description": null,
+    "lineNumber": 45,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "data",
+        "types": [
+          "*"
+        ]
+      }
+    ]
+  },
+  {
+    "__docId__": 33,
+    "kind": "member",
+    "name": "data",
+    "memberof": "lib/Server.js~Server",
+    "static": false,
+    "longname": "lib/Server.js~Server#data",
+    "access": null,
+    "description": null,
+    "lineNumber": 47,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 34,
+    "kind": "method",
+    "name": "start",
+    "memberof": "lib/Server.js~Server",
+    "generator": false,
+    "async": false,
+    "static": false,
+    "longname": "lib/Server.js~Server#start",
+    "access": null,
+    "description": null,
+    "lineNumber": 50,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 35,
+    "kind": "file",
+    "name": "lib/logger.js",
+    "content": "const { createLogger } = require('raft-logger')\nmodule.exports = createLogger({})\n",
+    "static": true,
+    "longname": "lib/logger.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 36,
+    "kind": "variable",
+    "name": "createLogger",
+    "memberof": "lib/logger.js",
+    "static": true,
+    "longname": "lib/logger.js~createLogger",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/logger.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 37,
+    "kind": "file",
+    "name": "lib/plugin-loader.js",
+    "content": "const log = require('./logger')\nconst PLUGIN_PREFIX = 'datadeer-plugin-'\n\nfunction _ensurePrefix (prefix, plugin) {\n  return plugin.startsWith(prefix)\n    ? plugin\n    : prefix + plugin\n}\n\nconst makeError = {\n  noFetch (plugin) {\n    return new Error(`${plugin} does not implement 'fetch' function`)\n  }\n}\n\nfunction _verifyPluginCompat (plugin) {\n  const errors = []\n  if (typeof plugin !== 'function') {\n    errors.push(makeError.noFetch(plugin.filename))\n  }\n  return errors\n}\n\nfunction tryRequire (id, req) {\n  log.debug({id}, `Attempting to require`)\n  try {\n    const _module = req(id)\n    log.debug(`Module ${id} found`)\n    return _module\n  } catch (err) {\n    log.error({err}, `Could not load module ${id}`)\n  }\n}\n\nfunction loadPlugin (pluginIdentifier) {\n  log.debug(`Attemping to load plugin ${pluginIdentifier}`)\n  const plugin = tryRequire(pluginIdentifier, require) ||\n    tryRequire(_ensurePrefix(PLUGIN_PREFIX, pluginIdentifier), require)\n  if (!plugin) {\n    const err = new Error(`${pluginIdentifier} module could not be found`)\n    err.errors = []\n    throw err\n  }\n  return plugin\n}\n\nmodule.exports = {\n  _verifyPluginCompat,\n  loadPlugin\n}\n",
+    "static": true,
+    "longname": "lib/plugin-loader.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1
+  },
+  {
+    "__docId__": 38,
+    "kind": "variable",
+    "name": "log",
+    "memberof": "lib/plugin-loader.js",
+    "static": true,
+    "longname": "lib/plugin-loader.js~log",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 39,
+    "kind": "variable",
+    "name": "PLUGIN_PREFIX",
+    "memberof": "lib/plugin-loader.js",
+    "static": true,
+    "longname": "lib/plugin-loader.js~PLUGIN_PREFIX",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 2,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "__docId__": 40,
+    "kind": "function",
+    "name": "_ensurePrefix",
+    "memberof": "lib/plugin-loader.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/plugin-loader.js~_ensurePrefix",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "prefix",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "plugin",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 41,
+    "kind": "variable",
+    "name": "makeError",
+    "memberof": "lib/plugin-loader.js",
+    "static": true,
+    "longname": "lib/plugin-loader.js~makeError",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "type": {
+      "types": [
+        "{\"noFetch\": function}"
+      ]
+    }
+  },
+  {
+    "__docId__": 42,
+    "kind": "function",
+    "name": "_verifyPluginCompat",
+    "memberof": "lib/plugin-loader.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/plugin-loader.js~_verifyPluginCompat",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "plugin",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 43,
+    "kind": "function",
+    "name": "tryRequire",
+    "memberof": "lib/plugin-loader.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/plugin-loader.js~tryRequire",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "req",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 44,
+    "kind": "function",
+    "name": "loadPlugin",
+    "memberof": "lib/plugin-loader.js",
+    "generator": false,
+    "async": false,
+    "static": true,
+    "longname": "lib/plugin-loader.js~loadPlugin",
+    "access": null,
+    "export": false,
+    "importPath": "@wwselleck/raft/lib/plugin-loader.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 35,
+    "undocument": true,
+    "unknown": [
+      {
+        "tagName": "@_undocument",
+        "tagValue": ""
+      }
+    ],
+    "params": [
+      {
+        "name": "pluginIdentifier",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 46,
+    "kind": "external",
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Infinity",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 47,
+    "kind": "external",
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~NaN",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 48,
+    "kind": "external",
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~undefined",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 49,
+    "kind": "external",
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~null",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 50,
+    "kind": "external",
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Object",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 51,
+    "kind": "external",
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~object",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 52,
+    "kind": "external",
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Function",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 53,
+    "kind": "external",
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~function",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 54,
+    "kind": "external",
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Boolean",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 55,
+    "kind": "external",
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~boolean",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 56,
+    "kind": "external",
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Symbol",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 57,
+    "kind": "external",
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Error",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 58,
+    "kind": "external",
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~EvalError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 59,
+    "kind": "external",
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~InternalError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 60,
+    "kind": "external",
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RangeError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 61,
+    "kind": "external",
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ReferenceError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 62,
+    "kind": "external",
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~SyntaxError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 63,
+    "kind": "external",
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~TypeError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 64,
+    "kind": "external",
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~URIError",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 65,
+    "kind": "external",
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Number",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 66,
+    "kind": "external",
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~number",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 67,
+    "kind": "external",
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Date",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 68,
+    "kind": "external",
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~String",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 69,
+    "kind": "external",
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~string",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 70,
+    "kind": "external",
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RegExp",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 71,
+    "kind": "external",
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 72,
+    "kind": "external",
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int8Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 73,
+    "kind": "external",
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 74,
+    "kind": "external",
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8ClampedArray",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 75,
+    "kind": "external",
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int16Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 76,
+    "kind": "external",
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint16Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 77,
+    "kind": "external",
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int32Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 78,
+    "kind": "external",
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint32Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 79,
+    "kind": "external",
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float32Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 80,
+    "kind": "external",
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float64Array",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 81,
+    "kind": "external",
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Map",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 82,
+    "kind": "external",
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Set",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 83,
+    "kind": "external",
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakMap",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 84,
+    "kind": "external",
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakSet",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 85,
+    "kind": "external",
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ArrayBuffer",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 86,
+    "kind": "external",
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~DataView",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 87,
+    "kind": "external",
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~JSON",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 88,
+    "kind": "external",
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Promise",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 89,
+    "kind": "external",
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Generator",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 90,
+    "kind": "external",
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~GeneratorFunction",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 91,
+    "kind": "external",
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Reflect",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 92,
+    "kind": "external",
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Proxy",
+    "access": null,
+    "description": "",
+    "lineNumber": 193,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 94,
+    "kind": "external",
+    "name": "CanvasRenderingContext2D",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~CanvasRenderingContext2D",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 95,
+    "kind": "external",
+    "name": "DocumentFragment",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~DocumentFragment",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 96,
+    "kind": "external",
+    "name": "Element",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~Element",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 97,
+    "kind": "external",
+    "name": "Event",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~Event",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 98,
+    "kind": "external",
+    "name": "Node",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~Node",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 99,
+    "kind": "external",
+    "name": "NodeList",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~NodeList",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 100,
+    "kind": "external",
+    "name": "XMLHttpRequest",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
+    "access": null,
+    "description": "",
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 101,
+    "kind": "external",
+    "name": "AudioContext",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "static": true,
+    "longname": "BuiltinExternal/WebAPIExternal.js~AudioContext",
+    "access": null,
+    "description": "",
+    "lineNumber": 34,
+    "builtinExternal": true
+  }
+]

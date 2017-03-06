@@ -1,0 +1,20 @@
+{
+  "name": "@wwselleck/raft-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "raft": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bunyan": "^1.8.5",
+    "@wwselleck/raft": "^1.0.0",
+    "@wwselleck/raft-logger": "^1.0.0",
+    "@wwselleck/raft-plugin-googledrive": "^1.0.0"
+  }
+}
