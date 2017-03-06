@@ -11,12 +11,12 @@ Raft is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monor
 
 | Package | Description |
 |--------|---------------|
-| [`raft-cli`](/packages/raft-cli) | Somethign that will change |
-| [`raft-cms`](/packages/raft-cms) | Main something that'll change |
-| [`raft-datamanager`](/packages/raft-datamanager) | Core DataDeer package that accepts configuration and plugins and exposes function(s) to retrieve data |
+| [`raft`](/packages/raft) | Main package (no offense to the other packages) |
+| [`raft-cli`](/packages/raft-cli) | Raft command line utility |
+| [`raft-datamanager`](/packages/raft-datamanager) | Manages data sources and exposes functions to fetch data from them |
 | [`raft-logger`](/packages/raft-logger) | Logger for all other packages to import and use for logging |
 
-### Built-In Plugins
+### Plugins
 | Package | Description |
 |--------|---------------|
 | [`raft-plugin-googledrive`](/packages/raft-plugin-googledrive) | Fetch data from a Google Drive folder (spreadsheets, image urls, etc) |

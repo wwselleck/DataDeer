@@ -1,23 +1,23 @@
-# datadeer-core
+# raft-datamanager
 
->This is the main package for DataDeer.
+> Manages data sources
 
 ## Installation
 `npm install @wwselleck/raft-datamanager
 
 ## Usage
 
-### DataDeer.create(config)
-Create a new DataDeer instance
+### new RaftDataManager(config)
+Create a new RaftDataManager instance
 ```javascript
 const RaftDataManager = require('raft-datamanager')
 const googledrive = require('datadeer-plugin-googledrive')
 
-const dataManager = RaftDataManager.create({
+const dataManager = new RaftDataManager({
   sources: [
     {
       id: 'drive'
-      plugin: googledrive({some configuration}),
+      source: googledrive({some configuration}),
     }
   ]
 })
