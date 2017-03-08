@@ -16,9 +16,10 @@ function main () {
   }
 
   log.info({configPath, config}, 'Configuration read successfully')
-  log.info('Starting DataDeerCMS...')
-  let server = raft(config)
-  server.start().catch(err => console.log(err))
+  let r = raft(config)
+  r.fetch().then(data => {
+    log.info({data})
+  })
 }
 
 if (!module.parent) {

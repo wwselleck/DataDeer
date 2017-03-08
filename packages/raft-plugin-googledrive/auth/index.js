@@ -9,7 +9,7 @@ let authModes = {
 }
 
 function authenticate (opts) {
-  if (!authModes[opts.mode]) {
+  if (!authModes[opts.type]) {
     log.error({opts}, 'Attemping to authenticate with an invalid mode')
   }
   return authModes[opts.type](opts)

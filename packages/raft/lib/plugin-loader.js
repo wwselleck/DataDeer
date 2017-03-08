@@ -1,3 +1,7 @@
+/**
+ * Legacy but keeping it around just in case
+ */
+
 const log = require('./logger')
 const PLUGIN_PREFIX = 'datadeer-plugin-'
 

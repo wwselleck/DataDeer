@@ -1,6 +1,5 @@
 const log = require('./logger')
-const RaftDataManager = require('@wwselleck/raft-datamanager')
-const RaftServer = require('./RaftServer')
+const RaftDataStore = require('./RaftDataStore')
 const RaftPluginInterface = require('./RaftPluginInterface')
 
 function combineArrays (...arrays) {
@@ -27,13 +26,8 @@ class Raft {
    * Create an instance of Raft
    * @param {RaftConfig} config - Raft configuration
    */
-  constructor (config, dataManager, server) {
-    this.dataManager = dataManager
-    this.server = server
-    this.server.setDataManager(dataManager)
-
-    this.plugins = []
-
+  constructor (config, store) {
+    this.store = store
     const { plugins, dataSources } = config
     this._applyPlugins(combineArrays(plugins, dataSources))
 
@@ -47,17 +41,23 @@ class Raft {
   }
 
   use (plugin) {
-    this.plugins.push(plugin)
     log.debug({plugin}, 'Attemping to apply plugin')
     plugin(new RaftPluginInterface(this))
     log.debug({plugin}, 'Plugin applied')
+    return this
   }
 
-  start () {
-    return this.server.start()
+  _fetchAll () {
+    return this.store.fetch()
+  }
+
+  get (id) {
+    return this.store.get(id)
   }
 }
 
-module.exports = (config) => {
-  return new Raft(config, new RaftDataManager(), new RaftServer())
+module.exports = {
+  create (config) {
+    return new Raft(config, RaftDataStore.create())
+  }
 }

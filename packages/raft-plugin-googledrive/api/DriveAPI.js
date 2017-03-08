@@ -70,7 +70,14 @@ function loadDirData (parentid, {auth, tables = [], images = []}) {
   return Promise.all(promises).then(() => ret)
 }
 
+const MIME_TYPES = {
+  SHEET: 'application/vnd.google-apps.spreadsheet',
+  FOLDER: 'application/vnd.google-apps.folder',
+  FILE: 'application/vnd.google-apps.file'
+}
+
 module.exports = {
   searchFiles,
-  loadDirData
+  loadDirData,
+  MIME_TYPES
 }

@@ -4,7 +4,7 @@ class RaftPluginInterface {
   }
 
   addDataSource (id, dataSource) {
-    this.raft.dataManager.use(id, dataSource)
+    this.raft.store.addSource(id, dataSource)
   }
 }
 

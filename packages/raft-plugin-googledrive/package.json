@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@wwselleck/raft": "^1.0.0",
     "@wwselleck/raft-logger": "^1.0.0",
     "googleapis": "^17.1.0"
   },

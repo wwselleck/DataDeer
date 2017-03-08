@@ -1,11 +1,11 @@
-const log = require('./lib/logger')
-const { makeError } = require('./lib/errors')
+const log = require('./logger')
+const { makeError } = require('./errors')
 
 /**
  * Core class of DataDeer. Maintains a collection of plugins and fetches
  * data from them.
  */
-class RaftDataManager {
+class RaftDataStore {
 
   /**
    * Create a DataDeer instance
@@ -17,11 +17,11 @@ class RaftDataManager {
    */
   constructor (config = {}) {
     this.config = config
-    this.sources = []
+    this.sources = {}
 
     const { sources = [] } = config
     sources.forEach(source => {
-      this.use(source)
+      this.addSource(source)
     })
   }
 
@@ -47,7 +47,7 @@ class RaftDataManager {
   /**
    * Use a sourceConfig
    */
-  use (id, source) {
+  addSource (id, source) {
     log.debug({ id, source }, `Attemping to use source`)
     const errors = this._verifysourceCompat(source)
     if (errors.length !== 0) {
@@ -58,7 +58,7 @@ class RaftDataManager {
       log.warn(new Error(errorString))
     }
 
-    this.sources.push({id, source})
+    this.sources[id] = source
     return this
   }
 
@@ -75,6 +75,14 @@ class RaftDataManager {
       return ret
     })
   }
+
+  get (id) {
+    return this.sources[id]
+  }
 }
 
-module.exports = RaftDataManager
+module.exports = {
+  create (config) {
+    return new RaftDataStore(config)
+  }
+}
