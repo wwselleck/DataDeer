@@ -42,6 +42,11 @@ class Raft {
     })
   }
 
+  sources () {
+    console.log(this.store)
+    return this.store.getSources()
+  }
+
   use (id, sourceConfig) {
     log.debug({sourceConfig}, 'Attemping to apply source')
     this.store.addSource(id, sourceConfig)

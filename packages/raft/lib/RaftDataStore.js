@@ -64,6 +64,10 @@ class RaftDataStore {
     return this
   }
 
+  getSources () {
+    return this.sources
+  }
+
   get (id) {
     // TODO error wahtever
     return this.sources[id]

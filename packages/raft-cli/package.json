@@ -12,9 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bunyan": "^1.8.5",
     "@wwselleck/raft": "^1.0.0",
     "@wwselleck/raft-logger": "^1.0.0",
-    "@wwselleck/raft-plugin-googledrive": "^1.0.0"
+    "@wwselleck/raft-plugin-googledrive": "^1.0.0",
+    "bunyan": "^1.8.5",
+    "commander": "^2.9.0",
+    "inquirer": "^3.0.6"
   }
 }
