@@ -1,44 +1,63 @@
 const Source = require('./Source')
-let DriveAPI = require('../api/DriveAPI')
-let log = require('../lib/logger.js')
+const { RaftDataSource } = require('@wwselleck/raft')
+const Spreadsheet = require('./Spreadsheet')
+const DriveAPI = require('../api/DriveAPI')
+const log = require('../lib/logger.js')
 
 class Directory extends Source {
-  get (getters) {
-
+  _getChildrenFiles () {
+    const { auth, id } = this.config
+    const { SHEET } = DriveAPI.MIME_TYPES
+    return DriveAPI.searchFiles(
+      `'${id}' in parents and mimeType = '${SHEET}'`,
+      { auth }
+    )
   }
 
   options () {
+    return this.spreadsheets().then(spreadsheets => {
+      return {
+        spreadsheets: RaftDataSource.fromObj(spreadsheets)
+      }
+    })
+  }
+
+  spreadsheets () {
     return this.prereq().then(() => {
-      const { auth, parentId } = this.config
-      log.error(parentId)
-      const { SHEET } = DriveAPI.MIME_TYPES
-      return DriveAPI.searchFiles(
-        `'${parentId}' in parents and mimeType = '${SHEET}'`,
-        { auth }
-      ).then(files => {
-        log.info(files)
+      const { auth } = this.config
+      return this._getChildrenFiles().then(files => {
+        const children = {}
+        files.forEach(file => {
+          children[file.name] = new Spreadsheet({
+            auth,
+            id: file.id
+          })
+        })
+        return children
       }).catch(err => {
         log.error(err)
       })
     })
   }
 
-  fetch () {
-    log.debug('Confirming auth and basedirId...')
-    return this._confirmAll().then(() => {
-      const {
-        tables,
-        images
-      } = this.config
-      const { auth, basedirId } = this
-      log.debug('Confirmed, fetching data')
-      return DriveAPI.loadDirData(basedirId, {
-        auth,
-        tables,
-        images
-      }).then(data => {
-        log.debug({data}, 'Data fetched')
-        return data
+  /**
+   * @param {object} opts - options
+   * @property {array} children - Children to fetch from
+   * @property
+   */
+  data (opts) {
+    opts = opts || this.config.default
+    return this.prereq().then(() => {
+      const { spreadsheets, images } = opts
+      return this.children().then(children => {
+        let promises = []
+        const ret = {}
+        promises = promises.concat(spreadsheets.map(name => {
+          return children[name].data().then(data => {
+            ret[name] = data
+          })
+        }))
+        return Promise.all(promises).then(() => ret)
       })
     })
   }

@@ -44,11 +44,11 @@ function loadSheetData (parentid, name, {auth}) {
   })
 }
 
-function loadDirData (parentid, {auth, tables = [], images = []}) {
-  log.info({parentid, tables}, 'Reading data from data tables')
+function loadDirData (parentid, {auth, spreadsheets = [], images = []}) {
+  log.info({parentid, spreadsheets, images}, 'Reading data from data tables')
   let ret = {}
   let promises = []
-  tables.forEach(t => {
+  spreadsheets.forEach(t => {
     promises.push(loadSheetData(parentid, t, {auth}).then(data => {
       if (ret[t]) {
         log.warn(t, 'Overwriting duplicate file name')

@@ -1,20 +1,8 @@
 const log = require('./logger')
 const { makeError } = require('./errors')
+const RaftDataSource = require('./RaftDataSource')
 
-/**
- * Core class of DataDeer. Maintains a collection of plugins and fetches
- * data from them.
- */
 class RaftDataStore {
-
-  /**
-   * Create a DataDeer instance
-   * @param {Config} config - DataDeer configuration
-   * @param {SourceConfig[]} config.sources -  Data sources to be used at initialization
-   * @param {DataDeerPlugin} config.sources.plugin - Plugin to use
-   * @param {object} config.sources.options - Options to use to create plugin instance
-   * @param {string} config.sources.id - ID to use to identify data
-   */
   constructor (config = {}) {
     this.config = config
     this.sources = {}
@@ -22,6 +10,20 @@ class RaftDataStore {
     const { sources = [] } = config
     sources.forEach(source => {
       this.addSource(source)
+    })
+  }
+
+  default () {
+    const ret = {}
+    return Promise.all(this.sources.map(sourceConfig => {
+      const { source, id } = sourceConfig
+      return source.fetch().then(data => {
+        ret[id] = data
+      }).catch(err => {
+        log.error({err, source}, 'Error while fetching data for source')
+      })
+    })).then(() => {
+      return ret
     })
   }
 
@@ -47,9 +49,9 @@ class RaftDataStore {
   /**
    * Use a sourceConfig
    */
-  addSource (id, source) {
-    log.debug({ id, source }, `Attemping to use source`)
-    const errors = this._verifysourceCompat(source)
+  addSource (id, sourceConfig) {
+    log.debug({ id, sourceConfig }, `Attemping to use source`)
+    const errors = [] // this._verifysourceCompat(sourceConfig)
     if (errors.length !== 0) {
       let errorString = 'Cannot use invalid source\n'
       errors.forEach(e => {
@@ -57,27 +59,28 @@ class RaftDataStore {
       })
       log.warn(new Error(errorString))
     }
-
-    this.sources[id] = source
+    const { source, options } = sourceConfig
+    this.sources[id] = RaftDataSource.create(source, options)
     return this
   }
 
-  fetch () {
-    const ret = {}
-    return Promise.all(this.sources.map(sourceConfig => {
-      const { source, id } = sourceConfig
-      return source.fetch().then(data => {
-        ret[id] = data
-      }).catch(err => {
-        log.error({err, source}, 'Error while fetching data for source')
-      })
-    })).then(() => {
-      return ret
-    })
+  get (id) {
+    // TODO error wahtever
+    return this.sources[id]
   }
 
-  get (id) {
-    return this.sources[id]
+  fetch () {
+    log.debug('::fetch')
+    const ret = {}
+    const promises = Object.keys(this.sources).map(key => {
+      const source = this.get(key)
+      log.debug({key}, 'Fetching source default data')
+      return source.do().then(data => {
+        ret[key] = data
+        log.debug({key}, 'Data successfully fetched')
+      })
+    })
+    return Promise.all(promises).then(() => ret)
   }
 }
 

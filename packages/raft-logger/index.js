@@ -11,7 +11,6 @@ const baseLogger = bunyan.createLogger({
 })
 
 const CHILD_DEFAULTS = {
-  level: 'debug',
   module: module.parent.filename
 }
 

@@ -13,9 +13,8 @@ class Source extends RaftDataSource {
     return Object.assign({}, config, { scopes })
   }
 
-  _confirmAuth () {
-    const auth = this.auth
-    const { authConfig } = this.config
+  confirmAuth () {
+    const { auth, authConfig } = this.config
 
     if (auth) {
       log.debug('Auth found, no need to authenticate again')
@@ -31,30 +30,30 @@ class Source extends RaftDataSource {
     })
   }
 
-  _confirmParentId () {
-    const { auth, basedir } = this.config
-    if (this.basedirId) {
+  confirmID () {
+    const { auth, name } = this.config
+    if (this.config.id) {
       return Promise.resolve()
     }
 
-    log.debug({basedir}, 'Attemping to resolve basedirId')
+    log.debug({name}, 'Attemping to ID')
     if (!auth) {
-      return Promise.reject(new Error('Cannot resolve base directory without authentication'))
+      return Promise.reject(new Error('Cannot resolve id without authentication'))
     }
 
-    if (!basedir) {
-      return Promise.reject(new Error('Invalid base directory configuration'))
+    if (!name) {
+      return Promise.reject(new Error('Cannot resolve id with current configuration'))
     }
 
-    const q = `name='${basedir}'`
+    const q = `name='${name}'`
     return DriveAPI.searchFiles(q, {
       auth
     }).then(files => {
       if (files.length < 1) {
-        throw new Error(`Base directory ${basedir} could not be found`)
+        throw new Error(`Base directory ${name} could not be found`)
       }
       log.debug(files)
-      this.config.parentId = files[0].id
+      this.config.id = files[0].id
     })
   }
 
@@ -64,9 +63,9 @@ class Source extends RaftDataSource {
   }
 
   prereq () {
-    return this._confirmAuth()
+    return this.confirmAuth()
       .then(() => {
-        return this._confirmParentId()
+        return this.confirmID()
       })
       .catch(err => {
         log.error({err, config: this.config}, 'Error confirming auth or basedirid')

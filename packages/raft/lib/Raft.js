@@ -1,7 +1,6 @@
 const log = require('./logger')
 const RaftDataStore = require('./RaftDataStore')
-const RaftPluginInterface = require('./RaftPluginInterface')
-
+/*
 function combineArrays (...arrays) {
   return arrays.reduce((acc, val) => {
     if (val) {
@@ -10,6 +9,7 @@ function combineArrays (...arrays) {
     return acc
   }, [])
 }
+*/
 
 /**
  * @typedef {Object} RaftConfig
@@ -27,32 +27,35 @@ class Raft {
    * @param {RaftConfig} config - Raft configuration
    */
   constructor (config, store) {
-    this.store = store
-    const { plugins, dataSources } = config
-    this._applyPlugins(combineArrays(plugins, dataSources))
-
     this.config = config
+    this.store = store
+
+    const { dataSources } = config
+    this._applySources(dataSources)
   }
 
-  _applyPlugins (plugins) {
-    plugins.forEach(plugin => {
-      this.use(plugin)
+  _applySources (sources) {
+    log.debug({sources}, 'Attempting to apply sources')
+    Object.keys(sources).forEach(sourceName => {
+      const source = sources[sourceName]
+      this.use(sourceName, source)
     })
   }
 
-  use (plugin) {
-    log.debug({plugin}, 'Attemping to apply plugin')
-    plugin(new RaftPluginInterface(this))
-    log.debug({plugin}, 'Plugin applied')
+  use (id, sourceConfig) {
+    log.debug({sourceConfig}, 'Attemping to apply source')
+    this.store.addSource(id, sourceConfig)
+    log.debug({sourceConfig}, 'Source applied')
     return this
-  }
-
-  _fetchAll () {
-    return this.store.fetch()
   }
 
   get (id) {
     return this.store.get(id)
+  }
+
+  fetch () {
+    log.debug('::fetch')
+    return this.store.fetch()
   }
 }
 
