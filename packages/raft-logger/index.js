@@ -3,7 +3,7 @@ let bunyan = require('bunyan')
 const baseLogger = bunyan.createLogger({
   name: 'Raft',
   src: true,
-  level: process.env.NODE_ENV === 'prod' ? 'info' : 'debug',
+  level: process.env.NODE_ENV === 'prod' ? 'info' : 'error',
   stream: process.stdout,
   serializers: {
     err: bunyan.stdSerializers.err

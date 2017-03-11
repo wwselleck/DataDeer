@@ -12,7 +12,15 @@ class GoogleDrive {
   options () {
     return {
       getData: {
-        f: '_getData'
+        f: '_getData',
+        optionTypes: {
+          spreadsheets: {
+            type: 'input',
+            filter: (input) => {
+              return JSON.parse(input)
+            }
+          }
+        }
       }
     }
   }
@@ -58,7 +66,6 @@ class GoogleDrive {
       log.debug('Spreadsheets fetched')
       const ret = {}
       spreadsheets.forEach(s => {
-        console.log(s)
         ret[s.name] = Spreadsheet.extractData(s.spreadsheet)
       })
       return ret

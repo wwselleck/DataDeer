@@ -43,7 +43,6 @@ class Raft {
   }
 
   sources () {
-    console.log(this.store)
     return this.store.getSources()
   }
 

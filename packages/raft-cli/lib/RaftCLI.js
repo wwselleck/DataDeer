@@ -1,4 +1,5 @@
 const inquirer = require('inquirer')
+const log = require('./logger')
 
 const Views = {
   ROOT: 'ROOT',
@@ -7,8 +8,9 @@ const Views = {
 }
 
 class RaftCLI {
-  constructor (raft) {
+  constructor (raft, prompter) {
     this.raft = raft
+    this.prompter = prompter
     this.state = {
       view: Views.ROOT,
       activeSource: null,
@@ -18,29 +20,34 @@ class RaftCLI {
 
   _rootPrompt () {
     const sources = this.raft.sources()
-    return inquirer.prompt({
+    const choices = Object.keys(sources).map(key => ({
+      name: key,
+      value: {
+        view: Views.SOURCE,
+        activeSource: key
+      }
+    }))
+    return this.prompter.prompt({
       type: 'list',
       name: 'selection',
       message: 'Available Sources',
-      choices: Object.keys(sources)
-    })
+      choices
+    }).then(answers => answers.selection)
   }
 
   _updateState (updates) {
-    this.state = {
-      ...this.state,
-      ...updates
-    }
+    const newState = Object.assign({}, this.state, updates)
+    log.debug({old: this.state, updates, new: newState}, 'Updated state')
+    this.state = newState
   }
 
   _sourcePrompt () {
-    console.log(this.activeSource)
-    const source = this.raft.get(this.activeSource)
-    console.log(source)
+    const { activeSource } = this.state
+    const source = this.raft.get(activeSource)
     const backChoice = {
-      name: `Back To Sources`,
+      name: `Back To Root`,
       value: {
-        view: Views.SOURCE,
+        view: Views.ROOT,
         activeSource: null
       }
     }
@@ -52,36 +59,55 @@ class RaftCLI {
         activeAction: key
       }
     }))
-
     return inquirer.prompt({
       type: 'list',
       name: 'selection',
-      message: `${this.activeSource} Available Actions`,
+      message: `${activeSource} Available Actions`,
       choices: [backChoice, ...actionChoices]
-    })
+    }).then(answers => answers.selection)
   }
 
   _actionPrompt () {
     const { activeSource, activeAction } = this.state
     const source = this.raft.get(activeSource)
-    const sourceOptions = source.options()
-    const action = sourceOptions[activeAction]
+    const action = source.options()[activeAction]
+    const optionTypes = action.optionTypes
+    const questions = this._questionsFromOptionTypes(optionTypes)
+    return inquirer.prompt(questions).then(actionOptions => {
+      return source.do(activeAction, actionOptions).then(res => {
+        console.log(JSON.stringify(res, null, 2))
+      })
+    }).then(() => ({
+      view: Views.SOURCE,
+      activeAction: null
+    }))
+  }
+
+  _questionsFromOptionTypes (optionTypes) {
+    const keys = Object.keys(optionTypes)
+    return keys.map(key => {
+      const question = optionTypes[key]
+      return Object.assign({}, question, {
+        name: key,
+        message: `${key}`
+      })
+    })
   }
 
   run () {
     let p
     switch (this.state.view) {
       case Views.ROOT:
-        this._rootPrompt()
+        p = this._rootPrompt()
         break
       case Views.SOURCE:
-        this._sourcePrompt()
+        p = this._sourcePrompt()
         break
       case Views.ACTION:
-        this._actionPrompt()
+        p = this._actionPrompt()
         break
     }
-    p.then((stateUpdates) => {
+    p.then((stateUpdates = {}) => {
       this._updateState(stateUpdates)
       this.run()
     })
@@ -89,5 +115,5 @@ class RaftCLI {
 }
 
 module.exports = {
-  create: (raft) => new RaftCLI(raft)
+  create: (raft) => new RaftCLI(raft, inquirer)
 }

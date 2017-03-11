@@ -18,7 +18,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "dev:example-site": "run-s bootstrap && node bin/run_example_site.js | bunyan",
-    "example_cli": "run-s bootstrap && node packages/raft-cli/index.js --config examples/raft.config.js | bunyan",
+    "example_cli": "run-s bootstrap && node packages/raft-cli/index.js --config ./examples/raft.config.js",
     "test": "run-s bootstrap && jasmine JASMINE_CONFIG_PATH=jasmine.json"
   },
   "repository": {
