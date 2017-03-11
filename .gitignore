@@ -5,7 +5,7 @@ node_modules
 *.*.swo
 .sw*
 creds
-example_site/creds
+examples/creds
 testsite
 *.swp
 *.swo

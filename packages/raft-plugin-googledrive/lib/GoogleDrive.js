@@ -11,7 +11,7 @@ class GoogleDrive {
 
   options () {
     return {
-      extractData: {
+      getData: {
         f: '_getData'
       }
     }
