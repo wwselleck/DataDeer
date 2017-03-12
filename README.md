@@ -2,9 +2,10 @@
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 > A group of otters is called a _raft_. Actually there are at least three other words that are more appropriate to use to refer to a group of otters, but they didn't sound as cool for a project name.
+
 <img src="http://main.dailyotter.org/wp-content/uploads/2012/09/tumblr_ll4zsfZYI31qzs75go1_1280.jpg" width="300">
 
-Raft is a plugin-based Javascript module for serving a simple, data driven website using configurable data sources such as a Google Spreadsheet.
+Raft is a plugin-based Javascript module for fetching data from configurable data sources.
 
 ## Packages
 Raft is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md). Why? I wanted to try it out and it seemed like a decent fit for this project
@@ -13,7 +14,6 @@ Raft is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monor
 |--------|---------------|
 | [`raft`](/packages/raft) | Main package (no offense to the other packages) |
 | [`raft-cli`](/packages/raft-cli) | Raft command line utility |
-| [`raft-datamanager`](/packages/raft-datamanager) | Manages data sources and exposes functions to fetch data from them |
 | [`raft-logger`](/packages/raft-logger) | Logger for all other packages to import and use for logging |
 
 ### Plugins
@@ -27,3 +27,46 @@ Raft is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monor
 Yeah I know but maybe the idea of having it listed here will motivate someone to make one.
 
 ## Getting Started
+
+### Installation
+All of the raft packages are underneath the `@wwselleck` npm scope.
+
+`npm install --save @wwelleck/raft`
+
+### Usage
+```javascript
+const Raft = require('@wwselleck/raft')
+const googledrive = require('@wwselleck/raft-plugin-googledrive')
+
+const raft = Raft.create({
+  dataSources: [
+    gdrive: {
+        source: googledrive({
+        authConfig: {
+          type: 'service',
+          path: path.resolve(__dirname, 'creds', 'gdrive_creds.json')
+        },
+        baseDirName: 'MyData'
+      })
+    }
+  ]
+})
+
+raft.get('gdrive').do('getData', {
+  spreadsheets: ['data', 'someOtherData']
+  images: ['someonesPetRabbit.jpg']
+}) 
+/*
+{
+  gdrive: {
+    spreadsheets: {
+      data: ......
+      someOtherData: ...
+    },
+    images: {
+      someonesPetRabbit.jpg: .....
+    }
+  }
+}
+*/
+```
