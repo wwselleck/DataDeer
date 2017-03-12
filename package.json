@@ -12,13 +12,14 @@
     "documentation": "^4.0.0-beta.18",
     "jasmine": "^2.5.3",
     "lerna": "2.0.0-beta.37",
+    "minimist": "^1.2.0",
     "mocha": "^2.5.3",
     "nodemon": "^1.11.0"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "dev:example-site": "run-s bootstrap && node bin/run_example_site.js | bunyan",
-    "example_cli": "run-s bootstrap && node packages/raft-cli/index.js --config ./examples/raft.config.js",
+    "prescript": "npm run bootstrap",
+    "script": "node bin/script.js --package $npm_package_config_package --cmd $npm_package_config_cmd",
     "test": "run-s bootstrap && jasmine JASMINE_CONFIG_PATH=jasmine.json"
   },
   "repository": {
