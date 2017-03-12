@@ -1,7 +1,6 @@
+const Raft = require('@wwselleck/raft')
 const { authenticate: gAuthenticate } = require('../auth')
 const DriveAPI = require('../api/DriveAPI')
-const SheetsAPI = require('../api/SheetsAPI')
-const Spreadsheet = require('./Spreadsheet')
 const log = require('../lib/logger.js')
 
 class GoogleDrive {
@@ -14,12 +13,8 @@ class GoogleDrive {
       getData: {
         f: '_getData',
         optionTypes: {
-          spreadsheets: {
-            type: 'input',
-            filter: (input) => {
-              return JSON.parse(input)
-            }
-          }
+          spreadsheets: Raft.OptionTypes.List,
+          images: Raft.OptionTypes.List
         }
       }
     }
@@ -29,46 +24,42 @@ class GoogleDrive {
   // Actions
   // /////////////////////////////////
 
-  // // extractData
+  // // getData
   _getData (options) {
     log.debug({options}, '_getData')
     return this._prereq().then(() => {
-      const { spreadsheets } = options
-      return this._getSpreadsheetData(spreadsheets)
+      const ret = {}
+      const promises = []
+      const { spreadsheets, images } = options
+      if (spreadsheets && !Array.isArray(spreadsheets)) {
+        throw new Error('spreadsheets must be an array')
+      }
+      promises.push(this._getSpreadsheetData(spreadsheets).then(data => {
+        ret.spreadsheets = data
+      }))
+
+      if (images && !Array.isArray(images)) {
+        throw new Error('images must be an array')
+      }
+      promises.push(this._getImageData(images).then(data => {
+        ret.images = data
+      }))
+
+      return Promise.all(promises).then(() => ret)
     })
   }
 
-  _getSpreadsheetsFromFiles (files) {
-    log.debug({files}, 'Attemping to get spreadsheets from files')
-    const { auth } = this.config
-    return Promise.all(files.map(f => {
-      return SheetsAPI.getSpreadsheet(f.id, { auth }).then(spreadsheet => {
-        return {
-          name: f.name,
-          spreadsheet
-        }
-      })
-    }))
+  _getSpreadsheetData (spreadsheets = []) {
+    const { id, auth } = this.config
+    return DriveAPI.loadSpreadsheetsInDirectory(id, spreadsheets, { auth }).catch(err => {
+      log.error({err}, 'Failed to load spreadsheet data')
+    })
   }
 
-  _getSpreadsheetData (spreadsheetNames) {
+  _getImageData (images = []) {
     const { id, auth } = this.config
-    const { SHEET } = DriveAPI.MIME_TYPES
-    return DriveAPI.searchFiles(
-      `'${id}' in parents and mimeType = '${SHEET}'`,
-      { auth }
-    ).then(files => {
-      log.debug({files}, 'Spreadsheet files fetched')
-      return this._getSpreadsheetsFromFiles(
-        files.filter(f => spreadsheetNames.includes(f.name))
-      )
-    }).then(spreadsheets => {
-      log.debug('Spreadsheets fetched')
-      const ret = {}
-      spreadsheets.forEach(s => {
-        ret[s.name] = Spreadsheet.extractData(s.spreadsheet)
-      })
-      return ret
+    return DriveAPI.loadImagesInDirectory(id, images, { auth }).catch(err => {
+      log.error({err}, 'Failed to load images data')
     })
   }
   /*********************************************/

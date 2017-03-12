@@ -12,7 +12,6 @@ function authenticateService (config) {
       let creds = JSON.parse(fs.readFileSync(authConfig.path, 'utf8'))
       log.info({authConfig}, 'Credentials file read successfully')
       authConfig = Object.assign({}, authConfig, creds)
-      log.info({authConfig}, 'New auth configuration')
     }
     let auth = new GoogleAuth()
     let oauth2Client = new auth.OAuth2()

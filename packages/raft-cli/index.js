@@ -1,7 +1,7 @@
 const path = require('path')
 const log = require('./lib/logger.js')
 const program = require('commander')
-const { Raft } = require('@wwselleck/raft')
+const Raft = require('@wwselleck/raft')
 const RaftCLI = require('./lib/RaftCLI')
 
 function resolveConfigPath (configPath) {
