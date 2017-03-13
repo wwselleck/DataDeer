@@ -7,7 +7,7 @@ module.exports = {
       source: googledrive({
         authConfig: {
           type: 'service',
-          path: path.resolve(__dirname, 'creds', 'raft_creds.json')
+          path: path.resolve(require('os').homedir(), 'Downloads', 'creds', 'raft_creds.json')
         },
         baseDirName: 'ExampleSite'
       }),
@@ -16,26 +16,6 @@ module.exports = {
           action: 'extractData',
           options: {
             spreadsheets: ['data'],
-            images: ['winnie.jpg']
-          }
-        }
-      }
-    },
-
-
-    'gdrive2': {
-      source: googledrive({
-        authConfig: {
-          type: 'service',
-          path: path.resolve(__dirname, 'creds', 'raft_creds.json')
-        },
-        baseDirName: 'ExampleSite'
-      }),
-      options: {
-        default: {
-          action: 'extractData',
-          options: {
-            spreadsheets: ['data2'],
             images: ['winnie.jpg']
           }
         }

@@ -10,5 +10,6 @@ examples/creds
 testsite
 *.swp
 *.swo
+*.swn
 /public
 *.log

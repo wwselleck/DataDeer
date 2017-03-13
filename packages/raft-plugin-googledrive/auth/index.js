@@ -1,8 +1,6 @@
 let authenticateOAuth = require('./OAuth.js')
 let authenticateService = require('./ServiceAuth.js')
 
-let log = require('../lib/logger.js')
-
 let authModes = {
   service: authenticateService,
   oauth2: authenticateOAuth
@@ -10,7 +8,7 @@ let authModes = {
 
 function authenticate (opts) {
   if (!authModes[opts.type]) {
-    log.error({opts}, 'Attemping to authenticate with an invalid mode')
+    throw new Error('Attempted to authenticate with an invalid mode')
   }
   return authModes[opts.type](opts)
 }

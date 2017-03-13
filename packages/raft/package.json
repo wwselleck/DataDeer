@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "bunyan": "^1.8.5",
-    "@wwselleck/raft-datamanager": "^1.0.0",
     "@wwselleck/raft-logger": "^1.0.0",
     "@wwselleck/raft-plugin-googledrive": "^1.0.0",
     "exphbs": "^1.1.0",

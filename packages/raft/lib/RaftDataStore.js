@@ -1,5 +1,4 @@
 const log = require('./logger')
-const { makeError } = require('./errors')
 const RaftDataSource = require('./RaftDataSource')
 
 class RaftDataStore {
@@ -33,15 +32,19 @@ class RaftDataStore {
    * @param {*} sourceConfig.plugin - Should be a function, but that's what's being checked
    * @param {string} sourceConfig.id - ID to identify plugin output in data object
    */
-  _verifysourceCompat (source) {
-    log.debug(source, 'Verifying source config compatability')
+  _verifysourceCompat (sourceConfig) {
+    log.debug(sourceConfig, 'Verifying source config compatability')
     const errors = []
-    if (source === undefined) {
-      errors.push(makeError.sourceUndefined())
+    if (!sourceConfig) {
+      errors.push(new Error('Source configuration is invalid'))
       return errors
     }
-    if (typeof source.fetch !== 'function') {
-      errors.push(makeError.notFunction(source.filename))
+    if (!sourceConfig.source) {
+      errors.push(new Error('Source configuration does not define "source"'))
+    }
+
+    if (typeof sourceConfig.source.options !== 'function') {
+      errors.push(new Error('Source does not implement "options"'))
     }
     return errors
   }
@@ -51,13 +54,14 @@ class RaftDataStore {
    */
   addSource (id, sourceConfig) {
     log.debug({ id, sourceConfig }, `Attemping to use source`)
-    const errors = [] // this._verifysourceCompat(sourceConfig)
+    const errors = this._verifysourceCompat(sourceConfig)
     if (errors.length !== 0) {
       let errorString = 'Cannot use invalid source\n'
       errors.forEach(e => {
         errorString += `${e.toString()}\n`
       })
       log.warn(new Error(errorString))
+      return
     }
     const { source, options } = sourceConfig
     this.sources[id] = RaftDataSource.create(source, options)
@@ -74,7 +78,6 @@ class RaftDataStore {
   }
 
   fetch () {
-    log.debug('::fetch')
     const ret = {}
     const promises = Object.keys(this.sources).map(key => {
       const source = this.get(key)

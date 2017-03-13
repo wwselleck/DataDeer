@@ -8,9 +8,9 @@ function authenticateService (config) {
   return new Promise((resolve, reject) => {
     let authConfig = config
     if (authConfig.path) {
-      log.info({path: authConfig.path}, 'Path property detected on auth configuration, attempting to read credentials file')
+      log.debug({path: authConfig.path}, 'Path property detected on auth configuration, attempting to read credentials file')
       let creds = JSON.parse(fs.readFileSync(authConfig.path, 'utf8'))
-      log.info({authConfig}, 'Credentials file read successfully')
+      log.debug({authConfig}, 'Credentials file read successfully')
       authConfig = Object.assign({}, authConfig, creds)
     }
     let auth = new GoogleAuth()

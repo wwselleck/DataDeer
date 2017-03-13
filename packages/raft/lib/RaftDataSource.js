@@ -1,18 +1,5 @@
 const log = require('../lib/logger.js')
 
-function fromObj (obj) {
-  return new (class extends RaftDataSource {
-    constructor (obj) {
-      super()
-      this.obj = obj
-    }
-
-    options () {
-      return Promise.resolve(this.obj)
-    }
-  })(obj)
-}
-
 class RaftDataSource {
   constructor (source, opts) {
     this.source = source
@@ -23,6 +10,10 @@ class RaftDataSource {
     log.debug({actionName, actionOptions}, '::do')
     if (!actionName) {
       log.debug('No action name given, attempting to use defaults')
+      if (!this.opts.default ||
+        this.opts.default.action) {
+        throw new Error('Source does not have valid defaults')
+      }
       const { action, options } = this.opts.default
       return this.do(action, options)
     }
@@ -40,8 +31,6 @@ class RaftDataSource {
     return this.source.options()
   }
 }
-
-RaftDataSource.fromObj = fromObj
 
 module.exports = {
   create (source, options) {

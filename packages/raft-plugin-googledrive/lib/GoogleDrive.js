@@ -87,6 +87,8 @@ class GoogleDrive {
     return this._authenticate(authConfig).then(_auth => {
       log.debug('Auth resolved, setting auth')
       this.config.auth = _auth
+    }).catch(err => {
+      log.error({err}, 'Could not authenticate')
     })
   }
 
