@@ -70,8 +70,8 @@ raft.get('gdrive').do('getData', {
 ```
 
 ## API
-### Raft
-##`Raft.create(config) -> raft`
+## Raft
+###`Raft.create(config) -> raft`
 Creates an instance of Raft using the given config
 ```javascript
 Raft.create({
@@ -91,15 +91,15 @@ Raft.create({
 })
 ```
 
-### Raft instance
-##`raft.get(id) -> RaftDataSource`
+## Raft instance
+###`raft.get(id) -> RaftDataSource`
 Get one of your data sources, specified by ID
 
-##`raft.fetch() -> Object`
+###`raft.fetch() -> Object`
 Fetch the default data from all of your sources
 
-### RaftDataSource
-##`source.do([actionName], [actionOptions])`
+## RaftDataSource
+###`source.do([actionName], [actionOptions])`
 Do the action with actionOptions on the source. If no action is specified, your default options will be used.
 
 ## CLI
