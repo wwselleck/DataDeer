@@ -1,7 +1,6 @@
 /**
  * Main Raft module. This module is directly exported by the index module
  * @module lib/raft
- * @public
  */
 
 const log = require('./logger')

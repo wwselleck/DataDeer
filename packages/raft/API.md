@@ -1,8 +1,6 @@
 ## Modules
 
 <dl>
-<dt><a href="#module_index">index</a></dt>
-<dd></dd>
 <dt><a href="#module_lib/optionTypes">lib/optionTypes</a></dt>
 <dd></dd>
 <dt><a href="#module_lib/raft">lib/raft</a></dt>
@@ -14,17 +12,6 @@
 <dd></dd>
 </dl>
 
-<a name="module_index"></a>
-
-## index
-**See**: module:lib/raft  
-<a name="exp_module_index--module.exports"></a>
-
-### module.exports ⏏
-A direct export of the lib/raft module
-
-**Kind**: Exported member  
-**See**: module:lib/raft  
 <a name="module_lib/optionTypes"></a>
 
 ## lib/optionTypes
@@ -87,7 +74,6 @@ class MySource {
 ## lib/raft
 Main Raft module. This module is directly exported by the index module
 
-**Access**: public  
 
 * [lib/raft](#module_lib/raft)
     * _static_
@@ -214,6 +200,7 @@ Get all default data from all sources
         * [.create(source, options)](#module_lib/raftDataSource.create) ⇒ <code>[RaftDataSource](#module_lib/raftDataSource..RaftDataSource)</code>
     * _inner_
         * [~RaftDataSource](#module_lib/raftDataSource..RaftDataSource)
+            * [new RaftDataSource(source)](#new_module_lib/raftDataSource..RaftDataSource_new)
             * [.do(actionName, actionOptions)](#module_lib/raftDataSource..RaftDataSource+do) ⇒ <code>Object</code>
             * [.options()](#module_lib/raftDataSource..RaftDataSource+options)
 
@@ -232,4 +219,127 @@ Create an instance of RaftDataSource
 <a name="module_lib/raftDataSource..RaftDataSource"></a>
 
 ### lib/raftDataSource~RaftDataSource
+Wraps a plugin and exposes functions for accessing it
+
 **Kind**: inner class of <code>[lib/raftDataSource](#module_lib/raftDataSource)</code>  
+
+* [~RaftDataSource](#module_lib/raftDataSource..RaftDataSource)
+    * [new RaftDataSource(source)](#new_module_lib/raftDataSource..RaftDataSource_new)
+    * [.do(actionName, actionOptions)](#module_lib/raftDataSource..RaftDataSource+do) ⇒ <code>Object</code>
+    * [.options()](#module_lib/raftDataSource..RaftDataSource+options)
+
+<a name="new_module_lib/raftDataSource..RaftDataSource_new"></a>
+
+#### new RaftDataSource(source)
+
+| Param |
+| --- |
+| source | 
+
+<a name="module_lib/raftDataSource..RaftDataSource+do"></a>
+
+#### raftDataSource.do(actionName, actionOptions) ⇒ <code>Object</code>
+Do an action on the data source
+
+**Kind**: instance method of <code>[RaftDataSource](#module_lib/raftDataSource..RaftDataSource)</code>  
+**Returns**: <code>Object</code> - - Returned data from action  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| actionName | <code>string</code> | Name of the action to do |
+| actionOptions | <code>Object</code> | Options to apply to action |
+
+<a name="module_lib/raftDataSource..RaftDataSource+options"></a>
+
+#### raftDataSource.options()
+Get the available actions from the data source
+
+**Kind**: instance method of <code>[RaftDataSource](#module_lib/raftDataSource..RaftDataSource)</code>  
+<a name="module_lib/raftDataStore"></a>
+
+## lib/raftDataStore
+
+* [lib/raftDataStore](#module_lib/raftDataStore)
+    * _static_
+        * [.create(config)](#module_lib/raftDataStore.create) ⇒ <code>[RaftDataStore](#module_lib/raftDataStore..RaftDataStore)</code>
+    * _inner_
+        * [~RaftDataStore](#module_lib/raftDataStore..RaftDataStore)
+            * [new RaftDataStore(config)](#new_module_lib/raftDataStore..RaftDataStore_new)
+            * [._verifySourceCompat(sourceConfig)](#module_lib/raftDataStore..RaftDataStore+_verifySourceCompat)
+            * [.addSource(id, sourceConfig)](#module_lib/raftDataStore..RaftDataStore+addSource)
+            * [.get(id)](#module_lib/raftDataStore..RaftDataStore+get) ⇒ <code>RaftDataSource.RaftDataSource</code>
+            * [.fetch()](#module_lib/raftDataStore..RaftDataStore+fetch)
+
+<a name="module_lib/raftDataStore.create"></a>
+
+### lib/raftDataStore.create(config) ⇒ <code>[RaftDataStore](#module_lib/raftDataStore..RaftDataStore)</code>
+**Kind**: static method of <code>[lib/raftDataStore](#module_lib/raftDataStore)</code>  
+
+| Param |
+| --- |
+| config | 
+
+<a name="module_lib/raftDataStore..RaftDataStore"></a>
+
+### lib/raftDataStore~RaftDataStore
+Maintains RaftDataSources
+
+**Kind**: inner class of <code>[lib/raftDataStore](#module_lib/raftDataStore)</code>  
+
+* [~RaftDataStore](#module_lib/raftDataStore..RaftDataStore)
+    * [new RaftDataStore(config)](#new_module_lib/raftDataStore..RaftDataStore_new)
+    * [._verifySourceCompat(sourceConfig)](#module_lib/raftDataStore..RaftDataStore+_verifySourceCompat)
+    * [.addSource(id, sourceConfig)](#module_lib/raftDataStore..RaftDataStore+addSource)
+    * [.get(id)](#module_lib/raftDataStore..RaftDataStore+get) ⇒ <code>RaftDataSource.RaftDataSource</code>
+    * [.fetch()](#module_lib/raftDataStore..RaftDataStore+fetch)
+
+<a name="new_module_lib/raftDataStore..RaftDataStore_new"></a>
+
+#### new RaftDataStore(config)
+
+| Param | Type |
+| --- | --- |
+| config | <code>Object</code> | 
+
+<a name="module_lib/raftDataStore..RaftDataStore+_verifySourceCompat"></a>
+
+#### raftDataStore._verifySourceCompat(sourceConfig)
+Check if a SourceConfig is compatible with Raft
+
+**Kind**: instance method of <code>[RaftDataStore](#module_lib/raftDataStore..RaftDataStore)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| sourceConfig | <code>Raft.SourceConfig</code> | Source configuration |
+| sourceConfig.source | <code>\*</code> | Should be a function, but that's what's being checked |
+| sourceConfig.id | <code>string</code> | ID to identify plugin output in data object |
+
+<a name="module_lib/raftDataStore..RaftDataStore+addSource"></a>
+
+#### raftDataStore.addSource(id, sourceConfig)
+Use a sourceConfig
+
+**Kind**: instance method of <code>[RaftDataStore](#module_lib/raftDataStore..RaftDataStore)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| id | <code>string</code> | ID to use to identify data soruce |
+| sourceConfig | <code>Raft.SourceConfig</code> | Source to add |
+
+<a name="module_lib/raftDataStore..RaftDataStore+get"></a>
+
+#### raftDataStore.get(id) ⇒ <code>RaftDataSource.RaftDataSource</code>
+Get a data source by its ID
+
+**Kind**: instance method of <code>[RaftDataStore](#module_lib/raftDataStore..RaftDataStore)</code>  
+
+| Param | Description |
+| --- | --- |
+| id | ID of source |
+
+<a name="module_lib/raftDataStore..RaftDataStore+fetch"></a>
+
+#### raftDataStore.fetch()
+Get all default data from all sources
+
+**Kind**: instance method of <code>[RaftDataStore](#module_lib/raftDataStore..RaftDataStore)</code>  

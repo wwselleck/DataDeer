@@ -1,11 +1,16 @@
 /**
  * @module lib/raftDataSource
  */
+
 const log = require('../lib/logger.js')
 
 /**
+ * Wraps a plugin and exposes functions for accessing it
  */
 class RaftDataSource {
+  /**
+   * @param source
+   */
   constructor (source, opts) {
     this.source = source
     this.opts = opts
