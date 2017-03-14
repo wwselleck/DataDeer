@@ -1,6 +1,8 @@
 ## Modules
 
 <dl>
+<dt><a href="#module_index">index</a></dt>
+<dd></dd>
 <dt><a href="#module_lib/optionTypes">lib/optionTypes</a></dt>
 <dd></dd>
 <dt><a href="#module_lib/raft">lib/raft</a></dt>
@@ -12,6 +14,17 @@
 <dd></dd>
 </dl>
 
+<a name="module_index"></a>
+
+## index
+**See**: module:lib/raft  
+<a name="exp_module_index--module.exports"></a>
+
+### module.exports ⏏
+A direct export of the lib/raft module
+
+**Kind**: Exported member  
+**See**: module:lib/raft  
 <a name="module_lib/optionTypes"></a>
 
 ## lib/optionTypes

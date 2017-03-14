@@ -7,7 +7,7 @@ const { runCommand, getPackages } = require('./_util')
 getPackages().forEach(pkg => {
   const outFile = fs.createWriteStream(path.resolve(pkg, 'API.md'))
   jsdoc2md.render({
-    files: path.resolve(pkg, 'lib/*.js')
+    files: [path.resolve(pkg, 'index.js'), path.resolve(pkg, 'lib/*.js')]
   }).then(md => {
     outFile.write(md)
   }).catch(console.error)
