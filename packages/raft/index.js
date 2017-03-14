@@ -1,6 +1,12 @@
+/**
+  * @module index
+  * @see module:lib/raft
+  */
+
 const Raft = require('./lib/Raft')
-const RaftDataSource = require('./lib/RaftDataSource')
-const OptionTypes = require('./lib/OptionTypes')
+
+/**
+ * A direct export of the lib/raft module
+ * @see module:lib/raft
+ */
 module.exports = Raft
-module.exports.RaftDataSource = RaftDataSource
-module.exports.OptionTypes = OptionTypes

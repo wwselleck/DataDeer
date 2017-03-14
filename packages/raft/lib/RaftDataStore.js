@@ -1,7 +1,15 @@
+/** @module lib/raftDataStore */
+
 const log = require('./logger')
 const RaftDataSource = require('./RaftDataSource')
 
+/**
+ * Maintains RaftDataSources
+ */
 class RaftDataStore {
+  /**
+   * @param {Object} config
+   */
   constructor (config = {}) {
     this.config = config
     this.sources = {}
@@ -12,27 +20,13 @@ class RaftDataStore {
     })
   }
 
-  default () {
-    const ret = {}
-    return Promise.all(this.sources.map(sourceConfig => {
-      const { source, id } = sourceConfig
-      return source.fetch().then(data => {
-        ret[id] = data
-      }).catch(err => {
-        log.error({err, source}, 'Error while fetching data for source')
-      })
-    })).then(() => {
-      return ret
-    })
-  }
-
   /**
-   * Check if a pluginConfig is compatible with DataDeer
-   * @param {Object} sourceConfig - Plugin configuration
-   * @param {*} sourceConfig.plugin - Should be a function, but that's what's being checked
+   * Check if a SourceConfig is compatible with Raft
+   * @param {Raft.SourceConfig} sourceConfig - Source configuration
+   * @param {*} sourceConfig.source - Should be a function, but that's what's being checked
    * @param {string} sourceConfig.id - ID to identify plugin output in data object
    */
-  _verifysourceCompat (sourceConfig) {
+  _verifySourceCompat (sourceConfig) {
     log.debug(sourceConfig, 'Verifying source config compatability')
     const errors = []
     if (!sourceConfig) {
@@ -51,10 +45,12 @@ class RaftDataStore {
 
   /**
    * Use a sourceConfig
+   * @param {string} id - ID to use to identify data soruce
+   * @param {Raft.SourceConfig} sourceConfig - Source to add
    */
   addSource (id, sourceConfig) {
     log.debug({ id, sourceConfig }, `Attemping to use source`)
-    const errors = this._verifysourceCompat(sourceConfig)
+    const errors = this._verifySourceCompat(sourceConfig)
     if (errors.length !== 0) {
       let errorString = 'Cannot use invalid source\n'
       errors.forEach(e => {
@@ -72,11 +68,19 @@ class RaftDataStore {
     return this.sources
   }
 
+  /**
+   * Get a data source by its ID
+   * @param id - ID of source
+   * @returns {RaftDataSource.RaftDataSource}
+   */
   get (id) {
     // TODO error wahtever
     return this.sources[id]
   }
 
+  /**
+   * Get all default data from all sources
+   */
   fetch () {
     const ret = {}
     const promises = Object.keys(this.sources).map(key => {
@@ -92,6 +96,10 @@ class RaftDataStore {
 }
 
 module.exports = {
+  /**
+   * @param config
+   * @returns {module:lib/raftDataStore~RaftDataStore}
+   */
   create (config) {
     return new RaftDataStore(config)
   }

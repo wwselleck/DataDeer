@@ -11,6 +11,7 @@
     "chai": "^3.5.0",
     "documentation": "^4.0.0-beta.18",
     "jasmine": "^2.5.3",
+    "jsdoc-to-markdown": "^3.0.0",
     "lerna": "2.0.0-beta.37",
     "minimist": "^1.2.0",
     "mocha": "^2.5.3",
@@ -18,6 +19,7 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
+    "docs": "node bin/docs.js",
     "prescript": "npm run bootstrap",
     "script": "node bin/script.js --package $npm_package_config_package --cmd $npm_package_config_cmd",
     "test": "run-s bootstrap && jasmine JASMINE_CONFIG_PATH=jasmine.json"

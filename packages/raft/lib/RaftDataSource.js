@@ -1,11 +1,22 @@
+/**
+ * @module lib/raftDataSource
+ */
 const log = require('../lib/logger.js')
 
+/**
+ */
 class RaftDataSource {
   constructor (source, opts) {
     this.source = source
     this.opts = opts
   }
 
+  /**
+   * Do an action on the data source
+   * @param {string} actionName - Name of the action to do
+   * @param {Object} actionOptions - Options to apply to action
+   * @returns {Object} - Returned data from action
+   */
   do (actionName, actionOptions) {
     log.debug({actionName, actionOptions}, '::do')
     if (!actionName) {
@@ -27,12 +38,21 @@ class RaftDataSource {
     return this.source[action.f](actionOptions)
   }
 
+  /**
+   * Get the available actions from the data source
+   */
   options () {
     return this.source.options()
   }
 }
 
 module.exports = {
+  /**
+   * Create an instance of RaftDataSource
+   * @param {Object} source - Source to wrap
+   * @param {Object} options - Options for data source
+   * @returns {module:lib/raftDataSource~RaftDataSource}
+   */
   create (source, options) {
     return new RaftDataSource(source, options)
   }
