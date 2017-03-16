@@ -70,7 +70,7 @@ raft.get('gdrive').do('getData', {
 ```
 
 ## API
-Documentation for each package can be seen in the `API.md` file in the package directory. For the Raft object (which you are probably most interested in), look [here](/packages/raft/docs/api).
+Documentation for each package can be seen in the `API.md` file in the package directory. For the Raft object (which you are probably most interested in), look [here](/packages/raft/API.md).
 
 ## CLI
 [Documentation](/packages/raft-cli)
