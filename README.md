@@ -61,6 +61,100 @@ Documentation for each package can be seen in the `API.md` file in the package d
 ## CLI
 [Documentation](/packages/raft-cli)
 
+## Making Plugins
+A Raft plugin exports a function that returns a Raft compatible data source. Let's make a plugin to see what this looks like. Say we want to make a data source for Jimmy's Farm, and we want to be able to ask how many of each animal there is at the farm.
+
+```javascript
+const Raft = require('@wwselleck/raft')
+const jimmysfarm = require('raft-plugin-jimmysfarm')
+
+const raft = Raft.create({
+  dataSources: [
+    jf: jimmysfarm({
+      includeAnimals: ['chicken']
+    })
+  ]
+})
+```
+
+You can see that for the `jf` instance of the Jimmy's Farm data source, we're providing a configuration object with the `includeAnimals` property on it. We'll use this configuration object later in our data source. Now let's make a first draft of the plugin.
+
+```javascript
+class JimmysFarm {
+  constructor (config) { this.config = config }
+}
+
+module.exports = config => {
+  return new JimmysFarm(config)
+}
+```
+Now we have to define what the available actions are for our data source. To do that, add a `options` method to the `JimmysFarm` class. This method will return an object where the keys are the names of the actions, and the values are the action configurations.
+
+```javascript
+const Raft = require('@wwselleck/raft')
+
+class JimmysFarm {
+  constructor (config) { this.config = config }
+  
+  options () {
+    return {
+      animalsCount: {
+        f: '_animalsCount',
+        optionTypes: {
+          animals: Raft.OptionTypes.List
+        }
+      }
+    }
+  }
+  
+  _animalsCount (animals = []){
+    const counts = {
+      chicken: 5,
+      sheep: 3,
+      duck: 10
+    }
+    const res = {}
+    Object.keys(counts).forEach(animal => {
+      if(animals.includes(animals) || this.config.includeAnimals.includes(animal)){
+        res[animal] = counts[animal]
+      }
+    })
+    return res
+  }
+}
+```
+
+- `animalsCount` is the name of the action. This is what the user will use to identify this action.
+- `f` is the name of the action function on the data source
+- `optionTypes` defines the parameters that `f` wants, and the types of them. This type information is needed for the raft-cli tool. You can see the available optionTypes [here](/packages/raft/API.md#liboptiontypes).
+
+And finally we define the `_animalsCount` function that uses both the given parameter and the data source configuration to return the animal counts data.
+
+And now we're pretty much done! We can now use this data source in Raft.
+
+```javascript
+const Raft = require('@wwselleck/raft')
+const jimmysfarm = require('raft-plugin-jimmysfarm')
+
+const raft = Raft.create({
+  dataSources: [
+    jf: jimmysfarm({
+      includeAnimals: ['chicken']
+    })
+  ]
+})
+
+raft.get('jf').do('animalCounts', {
+  animals: ['duck']
+})
+
+/*
+{
+  chicken: 5,
+  duck: 10
+}
+*/
+```
 
 ## Packages
 Raft is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md). Why? I wanted to try it out and it seemed like a decent fit for this project
