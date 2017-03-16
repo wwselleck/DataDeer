@@ -38,6 +38,8 @@ Name of the directory you want to use
 
 ### Actions
 #### getData
-Configuration
+Get data from the directory
+##### Configuration
 `spreadsheets` - List of names of spreadsheets to get data from
+
 `images` - List of images to get URLs for
