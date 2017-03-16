@@ -34,17 +34,16 @@ You'll then be presented with a screen that looks like this.
 
 <img src="/docs/1.png" width="300"/>
 
+From here you can select any of your configured data sources. I only have one so I'll select that one.
 
+<img src="/docs/2.png" width="300"/>
 
+Now you'll be able to see a list of actions that you can perform on the selected data source. Again, I only have one, so I'll select that one.
 
-```
-mySource1 <-
-mySource2
-```
-When you select one, you'll be taken to another screen with a list of actions to perform on that source
-```
-mySource1 Actions
-getData1 <-
-getData2
-```
-When you select an action, you'll be prompted to fill out any options. Once you've filled out all of the options, your data will be fetched and logged.
+<img src="/docs/3.png" width="300"/>
+
+You're then prompted to enter whatever parameters that action needs. Right now, you have to enter something that is valid JSON (i.e. will not throw an error when passed to `JSON.parse`). So for example if you want to enter a list of the string `data`, you'll enter `["data"]` (note that JSON requires double quoted strings). This will hopefully change at some point, but for now that's a requirement.
+
+Once you're done, the action will be executed and the results logged to you.
+
+<img src="/docs/4.png" width="300"/>

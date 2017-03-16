@@ -1,7 +1,5 @@
 {
-  "name": "@wwselleck/raft",
-  "version": "1.0.0",
-  "description": "Use Google Drive as a simple CMS of your website.",
+  "description": "Something with data",
   "main": "index.js",
   "devDependencies": {
     "babel-plugin-syntax-decorators": "^6.8.0",
@@ -19,7 +17,9 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "docs": "node bin/docs.js",
+    "docs": "run-s docs:clean docs:build",
+    "docs:clean": "node bin/docs_clean.js",
+    "docs:build": "node bin/docs_build.js",
     "prescript": "npm run bootstrap",
     "script": "node bin/script.js --package $npm_package_config_package --cmd $npm_package_config_cmd",
     "test": "run-s bootstrap && jasmine JASMINE_CONFIG_PATH=jasmine.json"

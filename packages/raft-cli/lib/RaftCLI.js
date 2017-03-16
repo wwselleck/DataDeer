@@ -1,3 +1,4 @@
+const chalk = require('chalk')
 const inquirer = require('inquirer')
 const log = require('./logger')
 
@@ -73,6 +74,8 @@ class RaftCLI {
     const action = source.options()[activeAction]
     const optionTypes = action.optionTypes
     const questions = this._questionsFromOptionTypes(optionTypes)
+
+    console.log(`Options for ${activeSource}:${activeAction}`)
     return inquirer.prompt(questions).then(actionOptions => {
       return source.do(activeAction, actionOptions).then(res => {
         console.log(JSON.stringify(res, null, 2))
@@ -94,7 +97,7 @@ class RaftCLI {
     })
   }
 
-  run () {
+  _promptLoop () {
     let p
     switch (this.state.view) {
       case Views.ROOT:
@@ -109,8 +112,14 @@ class RaftCLI {
     }
     p.then((stateUpdates = {}) => {
       this._updateState(stateUpdates)
-      this.run()
+      this._promptLoop()
     })
+  }
+
+  run () {
+    const style = chalk.blue
+    console.log(style('Welcome to Raft CLI!'))
+    this._promptLoop()
   }
 }
 

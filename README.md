@@ -53,7 +53,7 @@ const raft = Raft.create({
 raft.get('gdrive').do('getData', {
   spreadsheets: ['data', 'someOtherData']
   images: ['someonesPetRabbit.jpg']
-}) 
+})
 /*
 {
   gdrive: {
@@ -70,37 +70,7 @@ raft.get('gdrive').do('getData', {
 ```
 
 ## API
-## Raft
-###`Raft.create(config) -> raft`
-Creates an instance of Raft using the given config
-```javascript
-Raft.create({
-  dataSources: {
-    mySource1: { // Id to use for this data source
-      source: myPlugin({...}), 
-      options: {
-        default: { // Default action and options to apply when none provided
-          action: 'getData',
-          options: {
-            someOption: true
-          }
-        }
-      }
-    }
-  }
-})
-```
-
-## Raft instance
-###`raft.get(id) -> RaftDataSource`
-Get one of your data sources, specified by ID
-
-###`raft.fetch() -> Object`
-Fetch the default data from all of your sources
-
-## RaftDataSource
-###`source.do([actionName], [actionOptions])`
-Do the action with actionOptions on the source. If no action is specified, your default options will be used.
+Documentation for each package can be seen in the `API.md` file in the package directory. For the Raft object (which you are probably most interested in), look [here](/packages/raft/docs/api)
 
 ## CLI
 To use the raft-cli, first install it

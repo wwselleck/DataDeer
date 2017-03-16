@@ -32,7 +32,7 @@ const List = {
 }
 
 /**
- * Represents a list OptionType. Use this for actionOptions that require an array answer.
+ * Represents a object OptionType. Use this for actionOptions that require an object answer.
  * @type {module:lib/optionTypes~OptionType}
  * @example
  * const { OptionTypes } = require('@wwselleck/raft')
