@@ -12,10 +12,7 @@ getPackages().forEach(pkg => {
     outFile.write(md)
   }).catch(console.error)
 
-  const html = runCommand('jsdoc', ['index.js', 'lib', '-r', '-d', 'docs/api', '-R', 'README.md'], {
+  runCommand('jsdoc', ['index.js', 'lib', '-r', '-d', 'docs/api', '-R', 'README.md'], {
     cwd: pkg
-  })
-  html.stdout.on('data', data => {
-    console.log('jsdom: ' + data)
   })
 })

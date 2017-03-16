@@ -59,7 +59,7 @@ class MySource {
 <a name="module_lib/optionTypes..Obj"></a>
 
 ### lib/optionTypes~Obj : <code>[OptionType](#module_lib/optionTypes..OptionType)</code>
-Represents a list OptionType. Use this for actionOptions that require an array answer.
+Represents a object OptionType. Use this for actionOptions that require an object answer.
 
 **Kind**: inner constant of <code>[lib/optionTypes](#module_lib/optionTypes)</code>  
 **Example**  

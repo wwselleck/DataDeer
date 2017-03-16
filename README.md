@@ -37,7 +37,7 @@ const Raft = require('@wwselleck/raft')
 const googledrive = require('@wwselleck/raft-plugin-googledrive')
 
 const raft = Raft.create({
-  dataSources: [
+  datasources: [
     gdrive: {
         source: googledrive({
           authConfig: {
@@ -70,21 +70,7 @@ raft.get('gdrive').do('getData', {
 ```
 
 ## API
-Documentation for each package can be seen in the `API.md` file in the package directory. For the Raft object (which you are probably most interested in), look [here](/packages/raft/docs/api)
+Documentation for each package can be seen in the `API.md` file in the package directory. For the Raft object (which you are probably most interested in), look [here](/packages/raft/docs/api).
 
 ## CLI
-To use the raft-cli, first install it
-`npm install --save-dev @wwselleck/raft-cli`
-
-To use it, run `raft` specifying your configuration file with `--config`. Your configuration file should be a Javascript file that exports an object that can be passed to `Raft.create`. You'll then be presented with a list of your data sources that you can choose from.
-```
-mySource1 <-
-mySource2
-```
-When you select one, you'll be taken to another screen with a list of actions to perform on that source
-```
-mySource1 Actions
-getData1 <-
-getData2
-```
-When you select an action, you'll be prompted to fill out any options. Once you've filled out all of the options, your data will be fetched and logged.
+[Documentation](/packages/raft-cli)
